@@ -319,15 +319,20 @@ const initDatabase = async () => {
         // ── DEFAULT ADMIN ACCOUNT ──────────────────────────────
         // Password: Admin@123456 (bcrypt hash, cost 12)
         await db.execute(`
-            INSERT IGNORE INTO users (uuid, full_name, email, password_hash, role, is_active)
+            INSERT INTO users (uuid, full_name, email, password_hash, role, is_active)
             VALUES (
                 'admin-0000-0000-0000-000000000001',
                 'System Administrator',
                 'admin@legacyvault.com',
-                '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK8i',
+                '$2a$12$OnwnTEzxVLkPle9gvzcSDuvTPMTNtbyJhXRx5bL77o1C2RY1JrpKa',
                 'admin',
                 1
             )
+            ON DUPLICATE KEY UPDATE
+                password_hash = '$2a$12$OnwnTEzxVLkPle9gvzcSDuvTPMTNtbyJhXRx5bL77o1C2RY1JrpKa',
+                role = 'admin',
+                is_active = 1,
+                is_blocked = 0
         `);
 
         console.log('[DB INIT] ✅ All tables created successfully');

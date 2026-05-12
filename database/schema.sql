@@ -217,7 +217,7 @@ VALUES (
     'admin-0000-0000-0000-000000000001',
     'System Administrator',
     'admin@legacyvault.com',
-    '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK8i',
+    '$2a$12$OnwnTEzxVLkPle9gvzcSDuvTPMTNtbyJhXRx5bL77o1C2RY1JrpKa',
     'admin',
     1
 );
