@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 const { apiLimiter } = require('./middleware/rateLimiter');
+const initDatabase = require('./database/init');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -209,6 +210,9 @@ app.listen(PORT, () => {
 ║  👤 Admin: http://localhost:${PORT}/admin   ║
 ╚══════════════════════════════════════════╝
     `);
+
+    // Auto-initialize database tables on startup
+    initDatabase();
 
     // ── 3-STAGE LIVENESS CHECK SYSTEM ─────────────────────────
     // Runs every 24 hours.
