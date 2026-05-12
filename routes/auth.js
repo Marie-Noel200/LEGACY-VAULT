@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const { body, validationResult } = require('express-validator');
 const db = require('../config/database');
 const { logActivity, calculateRiskScore } = require('../utils/logger');
 const { loginLimiter } = require('../middleware/rateLimiter');
+const { sendPasswordReset } = require('../utils/mailer');
 
 // Register
 router.post('/register', [
@@ -221,6 +223,143 @@ router.put('/change-password', require('../middleware/auth').authenticateToken, 
         res.json({ success: true, message: 'Password changed successfully' });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Password change failed' });
+    }
+});
+
+// Forgot Password — sends reset email
+router.post('/forgot-password', [
+    body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, message: 'Please enter a valid email address' });
+    }
+
+    const { email } = req.body;
+
+    try {
+        // Always return success to prevent email enumeration attacks
+        const [users] = await db.execute(
+            'SELECT id, full_name, email FROM users WHERE email = ? AND is_active = 1',
+            [email]
+        );
+
+        if (users.length === 0) {
+            // Don't reveal whether email exists
+            return res.json({ success: true, message: 'If that email is registered, a reset link has been sent.' });
+        }
+
+        const user = users[0];
+
+        // Generate secure token
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+        // Delete any existing reset tokens for this user
+        await db.execute(
+            'DELETE FROM password_reset_tokens WHERE user_id = ?',
+            [user.id]
+        );
+
+        // Store the token
+        await db.execute(
+            'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
+            [user.id, token, expiresAt]
+        );
+
+        const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+        const resetUrl = `${BASE_URL}/reset-password?token=${token}`;
+
+        await sendPasswordReset({
+            userEmail: user.email,
+            userName: user.full_name,
+            resetUrl,
+            expiresAt
+        });
+
+        await logActivity(user.id, 'PASSWORD_RESET_REQUESTED', `Password reset requested`, req, 'medium');
+
+        res.json({ success: true, message: 'If that email is registered, a reset link has been sent.' });
+    } catch (err) {
+        console.error('Forgot password error:', err);
+        res.status(500).json({ success: false, message: 'Failed to process request. Please try again.' });
+    }
+});
+
+// Reset Password — verifies token and sets new password
+router.post('/reset-password', [
+    body('token').notEmpty().withMessage('Reset token required'),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)
+        .withMessage('Password must contain uppercase, lowercase, number and special character (@$!%*?&)'),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, message: errors.array()[0].msg });
+    }
+
+    const { token, password } = req.body;
+
+    try {
+        // Find valid token
+        const [tokens] = await db.execute(
+            `SELECT prt.*, u.id as user_id, u.full_name, u.email
+             FROM password_reset_tokens prt
+             JOIN users u ON prt.user_id = u.id
+             WHERE prt.token = ? AND prt.expires_at > NOW() AND prt.used = 0`,
+            [token]
+        );
+
+        if (tokens.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'This reset link is invalid or has expired. Please request a new one.'
+            });
+        }
+
+        const resetRecord = tokens[0];
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(12);
+        const password_hash = await bcrypt.hash(password, salt);
+
+        // Update password
+        await db.execute(
+            'UPDATE users SET password_hash = ? WHERE id = ?',
+            [password_hash, resetRecord.user_id]
+        );
+
+        // Mark token as used
+        await db.execute(
+            'UPDATE password_reset_tokens SET used = 1 WHERE token = ?',
+            [token]
+        );
+
+        await logActivity(resetRecord.user_id, 'PASSWORD_RESET_COMPLETED', 'Password reset via email link', req, 'medium');
+
+        res.json({ success: true, message: 'Password reset successfully. You can now sign in.' });
+    } catch (err) {
+        console.error('Reset password error:', err);
+        res.status(500).json({ success: false, message: 'Failed to reset password. Please try again.' });
+    }
+});
+
+// Verify reset token (GET — checks if token is still valid before showing form)
+router.get('/verify-reset-token', async (req, res) => {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ success: false, message: 'Token required' });
+
+    try {
+        const [tokens] = await db.execute(
+            'SELECT id FROM password_reset_tokens WHERE token = ? AND expires_at > NOW() AND used = 0',
+            [token]
+        );
+        if (tokens.length === 0) {
+            return res.status(400).json({ success: false, message: 'This reset link is invalid or has expired.' });
+        }
+        res.json({ success: true, message: 'Token is valid' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Verification failed' });
     }
 });
 

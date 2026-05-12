@@ -347,3 +347,16 @@ CREATE TABLE IF NOT EXISTS inactivity_checks (
 CREATE INDEX IF NOT EXISTS idx_inactivity_checks_user ON inactivity_checks(user_id);
 CREATE INDEX IF NOT EXISTS idx_inactivity_checks_token ON inactivity_checks(token);
 CREATE INDEX IF NOT EXISTS idx_inactivity_checks_status ON inactivity_checks(status);
+
+-- ── PASSWORD RESET TOKENS ─────────────────────────────────────
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(64) UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_prt_token ON password_reset_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_prt_user ON password_reset_tokens(user_id);

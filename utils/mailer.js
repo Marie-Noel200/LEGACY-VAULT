@@ -371,4 +371,75 @@ const sendLivenessCheck = async ({ userEmail, userName, checkNumber, maxChecks =
     }
 };
 
-module.exports = { sendEmergencyCode, sendAccessGranted, sendAccessDenied, sendContactAdded, sendLivenessCheck };
+// module.exports moved to bottom of file after sendPasswordReset
+
+// ── SEND PASSWORD RESET EMAIL ───────────────────────────────────
+const sendPasswordReset = async ({ userEmail, userName, resetUrl, expiresAt }) => {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.log(`[EMAIL SKIPPED] Password reset for ${userEmail}. Link: ${resetUrl}`);
+        return { success: false, reason: 'Email not configured' };
+    }
+
+    const expiryStr = new Date(expiresAt).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit', hour12: true
+    }) + ' — ' + new Date(expiresAt).toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#F8FAFC;font-family:Inter,Arial,sans-serif">
+  <div style="max-width:560px;margin:2rem auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(15,23,42,.1);border:1px solid #E2E8F0">
+    <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);padding:2rem;text-align:center">
+      <div style="font-family:Georgia,serif;font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:.25rem">Legacy<span style="color:#A5F3FC">Vault</span></div>
+      <div style="font-size:.75rem;color:rgba(255,255,255,.7);letter-spacing:2px;text-transform:uppercase">Password Reset</div>
+    </div>
+    <div style="padding:2rem">
+      <p style="color:#0F172A;font-size:.95rem;margin:0 0 1rem">Hello <strong>${userName}</strong>,</p>
+      <p style="color:#475569;font-size:.875rem;line-height:1.7;margin:0 0 1.5rem">
+        We received a request to reset the password for your Legacy Vault account.
+        Click the button below to set a new password.
+      </p>
+      <div style="text-align:center;margin:1.5rem 0">
+        <a href="${resetUrl}" style="display:inline-block;background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;text-decoration:none;padding:1rem 2.5rem;border-radius:10px;font-weight:700;font-size:1rem;box-shadow:0 4px 16px rgba(79,70,229,.3)">
+          Reset My Password →
+        </a>
+      </div>
+      <p style="color:#94A3B8;font-size:.78rem;text-align:center;margin:.5rem 0">
+        Or copy this link:<br><a href="${resetUrl}" style="color:#4F46E5;word-break:break-all">${resetUrl}</a>
+      </p>
+      <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.875rem;margin-top:1.5rem">
+        <div style="font-size:.8rem;color:#92400E"><strong>⏰ This link expires at:</strong> ${expiryStr}</div>
+        <div style="font-size:.78rem;color:#92400E;margin-top:.25rem">The link is single-use and expires in 1 hour.</div>
+      </div>
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:.875rem;margin-top:.75rem">
+        <div style="font-size:.8rem;color:#166534"><strong>🔒 Didn't request this?</strong> If you did not request a password reset, you can safely ignore this email. Your password will not change.</div>
+      </div>
+    </div>
+    <div style="background:#F8FAFC;border-top:1px solid #E2E8F0;padding:1.25rem 2rem;text-align:center">
+      <div style="font-size:.75rem;color:#94A3B8">© 2026 Legacy Vault. This link expires in 1 hour.</div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    try {
+        const transporter = createTransporter();
+        await transporter.sendMail({
+            from: FROM,
+            to: userEmail,
+            subject: `🔑 Reset Your Legacy Vault Password`,
+            html,
+            text: `Hello ${userName},\n\nClick the link below to reset your password:\n${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you did not request this, ignore this email.\n\nLegacy Vault`
+        });
+        console.log(`[EMAIL SENT] Password reset to ${userEmail}`);
+        return { success: true };
+    } catch (err) {
+        console.error(`[EMAIL ERROR] Password reset:`, err.message);
+        return { success: false, error: err.message };
+    }
+};
+
+module.exports = { sendEmergencyCode, sendAccessGranted, sendAccessDenied, sendContactAdded, sendLivenessCheck, sendPasswordReset };
