@@ -22,7 +22,6 @@ const initDatabase = async () => {
                 two_factor_enabled BOOLEAN DEFAULT FALSE,
                 is_active BOOLEAN DEFAULT TRUE,
                 last_login DATETIME,
-                last_activity DATETIME,
                 inactivity_threshold_days INT DEFAULT 180,
                 risk_score INT DEFAULT 0,
                 role ENUM('user','admin') DEFAULT 'user',
@@ -284,7 +283,8 @@ const initDatabase = async () => {
                 sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 confirmed_at DATETIME DEFAULT NULL,
                 expires_at DATETIME NOT NULL,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                UNIQUE KEY uq_user_check (user_id, check_number)
             )
         `);
 

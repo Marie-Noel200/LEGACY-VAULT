@@ -10,6 +10,15 @@ const { logActivity, calculateRiskScore } = require('../utils/logger');
 const { loginLimiter } = require('../middleware/rateLimiter');
 const { sendPasswordReset } = require('../utils/mailer');
 
+// Rate limiter for password reset — 3 attempts per 15 minutes per IP
+const resetLimiter = require('express-rate-limit').rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: process.env.NODE_ENV === 'production' ? 3 : 50,
+    message: { success: false, message: 'Too many reset attempts. Please try again in 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // Register
 router.post('/register', [
     body('full_name').trim().isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters'),
@@ -183,7 +192,7 @@ router.get('/me', require('../middleware/auth').authenticateToken, async (req, r
 // Update profile
 router.put('/profile', require('../middleware/auth').authenticateToken, [
     body('full_name').optional().trim().isLength({ min: 2, max: 100 }),
-    body('phone').optional({ checkFalsy: true }).isMobilePhone(),
+    body('phone').optional({ checkFalsy: true }).trim(),
 ], async (req, res) => {
     const { full_name, phone } = req.body;
     try {
@@ -207,7 +216,7 @@ router.put('/change-password', require('../middleware/auth').authenticateToken, 
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ success: false, errors: errors.array() });
+        return res.status(400).json({ success: false, message: errors.array()[0].msg });
     }
 
     const { current_password, new_password } = req.body;
@@ -227,7 +236,7 @@ router.put('/change-password', require('../middleware/auth').authenticateToken, 
 });
 
 // Forgot Password — sends reset email
-router.post('/forgot-password', [
+router.post('/forgot-password', resetLimiter, [
     body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
 ], async (req, res) => {
     const errors = validationResult(req);

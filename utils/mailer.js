@@ -371,8 +371,6 @@ const sendLivenessCheck = async ({ userEmail, userName, checkNumber, maxChecks =
     }
 };
 
-// module.exports moved to bottom of file after sendPasswordReset
-
 // ── SEND PASSWORD RESET EMAIL ───────────────────────────────────
 const sendPasswordReset = async ({ userEmail, userName, resetUrl, expiresAt }) => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {

@@ -126,6 +126,7 @@ async function loadLogs(page) {
   var res = await AdminAPI.get(url);
   if (!res || !res.success) return;
   document.getElementById('log-count').textContent = res.total + ' total entries';
+  document.getElementById('la-total').textContent = res.total || 0;
   var logs = res.logs;
   document.getElementById('logs-tbody').innerHTML = logs.length ? logs.map(function(l) {
     return '<tr>' +
@@ -161,7 +162,7 @@ async function loadAttempts() {
   var success = attempts.filter(function(a) { return a.success; }).length;
   document.getElementById('la-failed').textContent = failed;
   document.getElementById('la-success').textContent = success;
-  document.getElementById('la-total').textContent = attempts.length;
+  // la-total is set from the logs response, not attempts count
 }
 
 function openFlagModal(logId, userId) {
