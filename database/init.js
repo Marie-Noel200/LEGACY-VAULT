@@ -317,23 +317,36 @@ const initDatabase = async () => {
         `);
 
         // ── DEFAULT ADMIN ACCOUNT ──────────────────────────────
-        // Password: Admin@123456 (bcrypt hash, cost 12)
-        await db.execute(`
-            INSERT INTO users (uuid, full_name, email, password_hash, role, is_active)
-            VALUES (
-                'admin-0000-0000-0000-000000000001',
-                'System Administrator',
-                'admin@legacyvault.com',
-                '$2a$12$OnwnTEzxVLkPle9gvzcSDuvTPMTNtbyJhXRx5bL77o1C2RY1JrpKa',
-                'admin',
-                1
-            )
-            ON DUPLICATE KEY UPDATE
-                password_hash = '$2a$12$OnwnTEzxVLkPle9gvzcSDuvTPMTNtbyJhXRx5bL77o1C2RY1JrpKa',
-                role = 'admin',
-                is_active = 1,
-                is_blocked = 0
-        `);
+        // Always ensure admin exists with correct password: Admin@123456
+        const [adminRows] = await db.execute(
+            "SELECT id FROM users WHERE email = 'admin@legacyvault.com'"
+        );
+        if (adminRows.length > 0) {
+            // Admin exists — force-update the password hash and role
+            await db.execute(
+                `UPDATE users SET
+                    password_hash = '$2a$12$OnwnTEzxVLkPle9gvzcSDuvTPMTNtbyJhXRx5bL77o1C2RY1JrpKa',
+                    role = 'admin',
+                    is_active = 1,
+                    is_blocked = 0
+                WHERE email = 'admin@legacyvault.com'`
+            );
+            console.log('[DB INIT] ✅ Admin account password updated');
+        } else {
+            // Admin does not exist — create it
+            await db.execute(`
+                INSERT INTO users (uuid, full_name, email, password_hash, role, is_active)
+                VALUES (
+                    'admin-0000-0000-0000-000000000001',
+                    'System Administrator',
+                    'admin@legacyvault.com',
+                    '$2a$12$OnwnTEzxVLkPle9gvzcSDuvTPMTNtbyJhXRx5bL77o1C2RY1JrpKa',
+                    'admin',
+                    1
+                )
+            `);
+            console.log('[DB INIT] ✅ Admin account created');
+        }
 
         console.log('[DB INIT] ✅ All tables created successfully');
         console.log('[DB INIT] ✅ Default admin account ready (admin@legacyvault.com)');

@@ -130,9 +130,15 @@ const Loader = {
 // ---- PASSWORD TOGGLE ----
 const initPasswordToggles = () => {
     document.querySelectorAll('.password-toggle').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const input = btn.closest('.input-group').querySelector('input');
-            const icon = btn.querySelector('i');
+        // Remove old listener to prevent duplicates
+        btn.replaceWith(btn.cloneNode(true));
+    });
+    document.querySelectorAll('.password-toggle').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const input = this.closest('.input-group').querySelector('input[type="password"], input[type="text"]');
+            const icon = this.querySelector('i');
+            if (!input) return;
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.className = 'fas fa-eye-slash';
@@ -335,6 +341,4 @@ window.initTheme = initTheme;
 window.checkPasswordStrength = checkPasswordStrength;
 window.formatDate = formatDate;
 window.formatFileSize = formatFileSize;
-window.initPasswordToggles = initPasswordToggles;
-window.toggleTheme = toggleTheme;
 window.initTheme = initTheme;
