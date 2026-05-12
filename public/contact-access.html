@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg">
+<title>Document Access — Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:1rem}
+.access-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;width:100%;max-width:560px;box-shadow:var(--shadow-lg)}
+.code-input{font-size:2rem;font-weight:800;letter-spacing:.3em;text-align:center;font-family:monospace;border:2px solid var(--border);border-radius:12px;padding:.75rem;width:100%;background:var(--bg2);color:var(--text);transition:all .2s}
+.code-input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.12);background:var(--card)}
+.doc-row{display:flex;align-items:center;justify-content:space-between;padding:.875rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:.75rem;transition:all .2s}
+.doc-row:hover{border-color:var(--primary);background:var(--card)}
+.doc-row:last-child{margin-bottom:0}
+.step-badge{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.75rem;flex-shrink:0}
+.pin-input{font-size:1.5rem;font-weight:700;letter-spacing:.2em;text-align:center;font-family:monospace;border:2px solid var(--border);border-radius:10px;padding:.6rem;width:100%;background:var(--bg2);color:var(--text)}
+.pin-input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+</style></head>
+<body>
+<div class="access-card">
+  <div class="text-center mb-4">
+    <a href="/" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-3">
+      <img src="/img/logo.svg" height="34" alt="Legacy Vault">
+    </a>
+    <div id="header-icon" style="width:64px;height:64px;border-radius:50%;background:#EEF2FF;display:flex;align-items:center;justify-content:center;margin:.875rem auto">
+      <i class="fas fa-folder-open" style="color:var(--primary);font-size:1.5rem"></i>
+    </div>
+    <h3 style="font-family:'Playfair Display',serif;color:var(--text);font-size:1.5rem;margin-bottom:.25rem">Trusted Contact Access</h3>
+    <p style="color:var(--text-2);font-size:.875rem;margin:0">Enter your verification code to access assigned documents</p>
+  </div>
+
+  <!-- Loading -->
+  <div id="state-loading" class="text-center py-4">
+    <div class="spinner-vault" style="margin:0 auto 1rem"></div>
+    <div style="color:var(--text-2);font-size:.875rem">Loading...</div>
+  </div>
+
+  <!-- Error -->
+  <div id="state-error" style="display:none">
+    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:1.5rem;text-align:center">
+      <i class="fas fa-times-circle" style="color:var(--danger);font-size:2rem;display:block;margin-bottom:.75rem"></i>
+      <div style="font-weight:600;color:var(--danger);margin-bottom:.25rem">Access Unavailable</div>
+      <div id="error-msg" style="font-size:.875rem;color:var(--text-2)">This token is invalid or has expired.</div>
+    </div>
+    <a href="/" class="btn-vault-primary w-100 mt-3" style="justify-content:center;padding:.875rem"><i class="fas fa-home"></i>Go to Legacy Vault</a>
+  </div>
+
+  <!-- Verify form -->
+  <div id="state-form" style="display:none">
+    <!-- Token info -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:.75rem">Access Details</div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="font-size:.82rem;color:var(--text-2)">Vault Owner</span><span id="info-owner" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="font-size:.82rem;color:var(--text-2)">Access Type</span><span id="info-type" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0"><span style="font-size:.82rem;color:var(--text-2)">Expires</span><span id="info-expires" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+    </div>
+
+    <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.875rem;margin-bottom:1.5rem;display:flex;gap:10px">
+      <i class="fas fa-exclamation-triangle" style="color:#92400E;flex-shrink:0;margin-top:.1rem"></i>
+      <div style="font-size:.8rem;color:#92400E;line-height:1.6">You are accessing sensitive inheritance documents. All access is logged and monitored. Only access documents you are authorized to view.</div>
+    </div>
+
+    <form id="verify-form" class="form-vault" novalidate>
+      <div class="mb-3">
+        <label class="form-label">Verification Code</label>
+        <input type="text" id="verify-code" class="code-input" placeholder="000000" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem;text-align:center">Enter the 6-digit code sent to your email</div>
+      </div>
+      <div id="pin-section" style="display:none" class="mb-3">
+        <label class="form-label">Document PIN <span style="color:var(--danger)">*</span></label>
+        <input type="password" id="doc-pin" class="pin-input" placeholder="••••" maxlength="50">
+        <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem;text-align:center">This document requires a PIN set by the vault owner</div>
+      </div>
+      <div id="verify-alert" style="display:none" class="mb-3"></div>
+      <button type="submit" id="verify-btn" class="btn-vault-primary w-100" style="justify-content:center;padding:.875rem;font-size:.95rem">
+        <i class="fas fa-unlock"></i>Access Documents
+      </button>
+    </form>
+
+    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:.875rem">How This Works</div>
+      <div class="d-flex flex-column gap-2">
+        <div style="display:flex;align-items:flex-start;gap:10px"><div class="step-badge">1</div><div style="font-size:.78rem;color:var(--text-2);line-height:1.55">Enter the 6-digit code from your email</div></div>
+        <div style="display:flex;align-items:flex-start;gap:10px"><div class="step-badge">2</div><div style="font-size:.78rem;color:var(--text-2);line-height:1.55">Enter document PIN if required</div></div>
+        <div style="display:flex;align-items:flex-start;gap:10px"><div class="step-badge">3</div><div style="font-size:.78rem;color:var(--text-2);line-height:1.55">Download your assigned documents</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documents list (after verification) -->
+  <div id="state-docs" style="display:none">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="width:56px;height:56px;border-radius:50%;background:#F0FDF4;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem"><i class="fas fa-check-circle" style="color:var(--accent);font-size:1.5rem"></i></div>
+      <h5 style="font-family:'Playfair Display',serif;color:var(--text);margin-bottom:.25rem">Access Granted</h5>
+      <p id="docs-welcome" style="color:var(--text-2);font-size:.875rem;margin:0">Your assigned documents are ready</p>
+    </div>
+    <div id="docs-list"></div>
+    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.875rem;margin-top:1rem;font-size:.78rem;color:#1E40AF">
+      <i class="fas fa-info-circle me-2"></i>All document access is logged. Downloads are tracked for security and compliance.
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+var tokenId = window.location.pathname.split('/contact-access/')[1];
+var requiresPin = false;
+var accessedDocs = null;
+
+function showState(s) {
+  ['loading','error','form','docs'].forEach(function(x){
+    document.getElementById('state-'+x).style.display = x===s?'block':'none';
+  });
+}
+
+function formatDate(d) {
+  if(!d) return 'Unknown';
+  return new Date(d).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+async function loadToken() {
+  if(!tokenId){showState('error');document.getElementById('error-msg').textContent='No token ID in URL.';return;}
+  try {
+    var res = await fetch('/api/documents/contact-docs/' + tokenId);
+    var data = await res.json();
+    if(!data.success){showState('error');document.getElementById('error-msg').textContent=data.message||'Token invalid or expired.';return;}
+    document.getElementById('info-owner').textContent = 'Vault Owner';
+    document.getElementById('info-type').textContent = data.access_type === 'document' ? 'Specific Document' : 'General Inheritance';
+    document.getElementById('info-expires').textContent = formatDate(data.expires_at);
+    showState('form');
+  } catch(e) {
+    showState('error');document.getElementById('error-msg').textContent='Network error. Please try again.';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadToken();
+
+  document.getElementById('verify-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var code = document.getElementById('verify-code').value.trim();
+    var pin = document.getElementById('doc-pin').value.trim();
+    var alertEl = document.getElementById('verify-alert');
+    var btn = document.getElementById('verify-btn');
+
+    if(!code || code.length !== 6){
+      alertEl.style.display='block';
+      alertEl.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>Please enter your 6-digit verification code.</div>';
+      return;
+    }
+
+    btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
+    alertEl.style.display='none';
+
+    var payload = { verification_code: code };
+    if(pin) payload.document_pin = pin;
+
+    try {
+      var res = await fetch('/api/documents/contact-access/' + tokenId, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+
+      // Check if response is a file download
+      var contentType = res.headers.get('content-type');
+      if(contentType && !contentType.includes('application/json')) {
+        // File download
+        var blob = await res.blob();
+        var filename = res.headers.get('content-disposition')?.split('filename="')[1]?.replace('"','') || 'document';
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href=url;a.download=filename;a.click();
+        URL.revokeObjectURL(url);
+        btn.disabled=false;btn.innerHTML='<i class="fas fa-unlock me-2"></i>Access Documents';
+        showState('docs');
+        document.getElementById('docs-welcome').textContent='Your document has been downloaded successfully.';
+        document.getElementById('docs-list').innerHTML='<div class="doc-row"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:9px;background:#EEF2FF;display:flex;align-items:center;justify-content:center"><i class="fas fa-file-alt" style="color:var(--primary)"></i></div><div><div style="font-size:.875rem;font-weight:600;color:var(--text)">'+filename+'</div><div style="font-size:.75rem;color:var(--text-2)">Downloaded successfully</div></div></div><span class="badge-vault badge-active"><i class="fas fa-check me-1"></i>Downloaded</span></div>';
+        return;
+      }
+
+      var data = await res.json();
+      btn.disabled=false;btn.innerHTML='<i class="fas fa-unlock me-2"></i>Access Documents';
+
+      if(data.requires_pin) {
+        document.getElementById('pin-section').style.display='block';
+        alertEl.style.display='block';
+        alertEl.innerHTML='<div class="alert-vault alert-vault-info"><i class="fas fa-lock"></i>This document requires a PIN. Please enter it below.</div>';
+        return;
+      }
+
+      if(data.success) {
+        showState('docs');
+        var docs = data.documents || [];
+        document.getElementById('docs-welcome').textContent = 'Welcome, ' + (data.contact_name||'Contact') + '. You have access to ' + docs.length + ' document(s).';
+        if(!docs.length){
+          document.getElementById('docs-list').innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-2)">No documents available</div>';
+        } else {
+          document.getElementById('docs-list').innerHTML = docs.map(function(d){
+            return '<div class="doc-row"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:9px;background:#EEF2FF;display:flex;align-items:center;justify-content:center"><i class="fas fa-file-alt" style="color:var(--primary)"></i></div><div><div style="font-size:.875rem;font-weight:600;color:var(--text)">'+d.title+'</div><div style="font-size:.75rem;color:var(--text-2)">'+d.file_name+' &bull; '+d.category+'</div></div></div>'+(d.is_password_protected?'<span class="badge-vault badge-medium"><i class="fas fa-lock me-1"></i>PIN Required</span>':'<span class="badge-vault badge-active"><i class="fas fa-check me-1"></i>Accessible</span>')+'</div>';
+          }).join('');
+        }
+      } else {
+        alertEl.style.display='block';
+        alertEl.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>'+(data.message||'Verification failed.')+'</div>';
+      }
+    } catch(err) {
+      btn.disabled=false;btn.innerHTML='<i class="fas fa-unlock me-2"></i>Access Documents';
+      alertEl.style.display='block';
+      alertEl.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>Network error. Please try again.</div>';
+    }
+  });
+});
+</script>
+</body></html>

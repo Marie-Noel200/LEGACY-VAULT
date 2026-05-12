@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Trusted Contacts — Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+<style>
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;transition:all .25s}
+.contact-card:hover{border-color:rgba(79,70,229,.4);background:var(--bg2);transform:translateY(-3px);box-shadow:0 12px 32px rgba(2,7,16,.5)}
+.access-view{background:rgba(52,152,219,.12);color:#5dade2}
+.access-full{background:rgba(34,197,94,.12);color:var(--accent)}
+.access-emergency{background:#FEF2F2;color:var(--danger)}
+.modal-vault{display:none;position:fixed;inset:0;background:rgba(2,7,16,.8);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-vault.show{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:2rem;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(2,7,16,.8)}
+</style></head>
+<body>
+<script>if(!localStorage.getItem('lv_token')){window.location.href='/login';}</script>
+<div id="sidebar" class="sidebar"><div class="sidebar-logo"><a href="/dashboard" class="d-flex align-items-center gap-2 text-decoration-none"><img src="/img/logo.svg" height="34" alt="LV"><span class="brand-text" style="font-size:1rem">Legacy<span>Vault</span></span></a></div><nav class="sidebar-nav"><div class="sidebar-section-title">Main</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li><li class="nav-item"><a class="nav-link" href="/vault"><i class="fas fa-folder-open"></i>Document Vault</a></li><li class="nav-item"><a class="nav-link" href="/contacts"><i class="fas fa-users"></i>Trusted Contacts</a></li></ul><div class="sidebar-section-title">Security</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/security"><i class="fas fa-shield-alt"></i>Security Settings</a></li><li class="nav-item"><a class="nav-link" href="/activity"><i class="fas fa-chart-line"></i>Activity Monitor</a></li></ul><div class="sidebar-section-title">Access</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/emergency"><i class="fas fa-exclamation-triangle"></i>Emergency Access</a></li><li class="nav-item"><a class="nav-link" href="/profile"><i class="fas fa-user-circle"></i>Profile</a></li></ul><div style="padding:1rem 1.5rem;margin-top:auto;border-top:1px solid var(--border)"><a href="#" class="nav-link logout-btn" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i>Logout</a></div></nav></div>
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+<nav class="navbar-vault navbar px-3" style="position:sticky;top:0;z-index:100"><button id="sidebar-toggle" class="btn btn-sm me-3" style="background:var(--bg2);border:1px solid var(--border);color:var(--text-2)"><i class="fas fa-bars"></i></button><span class="brand-text d-lg-none" style="font-size:.95rem">Legacy<span>Vault</span></span><div class="ms-auto d-flex align-items-center gap-3"><button class="theme-toggle" title="Switch to Dark Mode"><i class="fas fa-moon"></i></button><div class="dropdown"><button class="btn d-flex align-items-center gap-2" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:.4rem .75rem" data-bs-toggle="dropdown"><div class="user-avatar-display" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff">U</div><span class="user-name-display d-none d-md-inline" style="font-size:.875rem;font-weight:500">User</span><i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.6"></i></button><ul class="dropdown-menu dropdown-menu-end" style="border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg)"><li><a class="dropdown-item" href="/profile" style="font-size:.875rem"><i class="fas fa-user me-2" style="color:var(--primary)"></i>Profile</a></li><li><a class="dropdown-item" href="/security" style="font-size:.875rem"><i class="fas fa-shield-alt me-2" style="color:var(--primary)"></i>Security</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item logout-btn" href="#" style="color:var(--danger);font-size:.875rem"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li></ul></div></div></nav>
+<div class="main-content" id="main-content"><div class="container-fluid px-4 py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div><h4 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Trusted Contacts</h4><p style="color:var(--text-2);font-size:.82rem;margin:0">People who can access your vault in emergencies</p></div>
+    <button onclick="openAddModal()" class="btn-vault-primary" style="padding:.5rem 1.25rem;font-size:.82rem"><i class="fas fa-user-plus"></i>Add Contact</button>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="stat-card text-center"><div id="total-count" style="font-size:2rem;font-weight:800;color:var(--text);font-family:Inter,sans-serif">—</div><div style="color:var(--text-2);font-size:.78rem;margin-top:.25rem">Total Contacts</div></div></div>
+    <div class="col-md-4"><div class="stat-card text-center"><div id="emergency-count" style="font-size:2rem;font-weight:800;color:var(--danger);font-family:Inter,sans-serif">—</div><div style="color:var(--text-2);font-size:.78rem;margin-top:.25rem">Can Trigger Emergency</div></div></div>
+    <div class="col-md-4"><div class="stat-card text-center"><div style="font-size:2rem;font-weight:800;color:var(--text);font-family:Inter,sans-serif">10</div><div style="color:var(--text-2);font-size:.78rem;margin-top:.25rem">Maximum Allowed</div></div></div>
+  </div>
+  <div id="contacts-grid" class="row g-3"><div class="col-12 text-center py-5"><div class="spinner-vault" style="margin:0 auto"></div></div></div>
+</div></div>
+
+<div class="modal-vault" id="contact-modal">
+  <div class="modal-box">
+    <div class="d-flex align-items-center justify-content-between mb-4"><h5 id="modal-title" style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Add Trusted Contact</h5><button onclick="closeModal()" style="background:none;border:none;color:var(--text-2);font-size:1.2rem;cursor:pointer"><i class="fas fa-times"></i></button></div>
+    <div id="contact-alert" style="display:none" class="mb-3"></div>
+    <form id="contact-form" class="form-vault" novalidate>
+      <input type="hidden" id="contact-id">
+      <div class="row g-3">
+        <div class="col-12"><label class="form-label">Full Name <span style="color:var(--danger)">*</span></label><input type="text" id="c-name" class="form-control" placeholder="Jane Smith" required></div>
+        <div class="col-12"><label class="form-label">Email Address <span style="color:var(--danger)">*</span></label><input type="email" id="c-email" class="form-control" placeholder="jane@example.com" required></div>
+        <div class="col-md-6"><label class="form-label">Phone</label><input type="tel" id="c-phone" class="form-control" placeholder="+1 555 000 0000"></div>
+        <div class="col-md-6"><label class="form-label">Relationship</label><input type="text" id="c-relationship" class="form-control" placeholder="e.g. Spouse, Attorney"></div>
+        <div class="col-12"><label class="form-label">Access Level</label><select id="c-access" class="form-select"><option value="view">View Only — Can see document list</option><option value="full">Full Access — Can download documents</option><option value="emergency">Emergency — Full access on trigger</option></select></div>
+        <div class="col-12"><div class="form-check" style="padding:.875rem;background:#FEF2F2;border-radius:10px;border:1px solid #FECACA"><input class="form-check-input" type="checkbox" id="c-emergency" style="background:var(--bg2);border-color:var(--border)"><label class="form-check-label" for="c-emergency" style="font-size:.82rem;color:var(--text)"><i class="fas fa-exclamation-triangle me-2" style="color:var(--danger)"></i>Can trigger emergency access request</label></div></div>
+        <div class="col-12" id="notify-section">
+          <div style="padding:.875rem;background:rgba(79,70,229,.06);border-radius:10px;border:1px solid #C7D2FE">
+            <div style="font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:.5rem"><i class="fas fa-bell me-2" style="color:var(--primary)"></i>Notify Contact</div>
+            <div style="font-size:.78rem;color:var(--text-2);margin-bottom:.75rem">Would you like to notify this person that they've been added as a trusted contact on your vault?</div>
+            <div class="d-flex gap-3">
+              <div class="form-check"><input class="form-check-input" type="radio" name="notify" id="notify-yes" value="yes" checked style="background:var(--bg2);border-color:var(--border)"><label class="form-check-label" for="notify-yes" style="font-size:.82rem;color:var(--text)">Yes, notify them</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="notify" id="notify-no" value="no" style="background:var(--bg2);border-color:var(--border)"><label class="form-check-label" for="notify-no" style="font-size:.82rem;color:var(--text)">No, add silently</label></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="button" onclick="closeModal()" class="btn-vault-secondary flex-fill" style="justify-content:center;padding:.75rem">Cancel</button>
+        <button type="submit" id="save-btn" class="btn-vault-primary flex-fill" style="justify-content:center;padding:.75rem"><i class="fas fa-save"></i>Save Contact</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+let editingId=null;
+const accessClasses={'view':'access-view','full':'access-full','emergency':'access-emergency'};
+const accessLabels={'view':'View Only','full':'Full Access','emergency':'Emergency'};
+document.addEventListener('DOMContentLoaded',async function(){
+  initSidebar();initUserInfo();
+  document.querySelectorAll('.logout-btn').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();logout();}));
+  document.querySelectorAll('.sidebar-nav .nav-link').forEach(l=>{if(l.getAttribute('href')===window.location.pathname)l.classList.add('active');});
+  document.getElementById('contact-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var btn=document.getElementById('save-btn');
+    btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    var notifyContact=document.querySelector('input[name="notify"]:checked')?.value==='yes';
+    var data={name:document.getElementById('c-name').value.trim(),email:document.getElementById('c-email').value.trim(),phone:document.getElementById('c-phone').value.trim()||undefined,relationship:document.getElementById('c-relationship').value.trim()||undefined,access_level:document.getElementById('c-access').value,can_trigger_emergency:document.getElementById('c-emergency').checked,notify_contact:notifyContact};
+    var res=editingId?await LV.API.put('/contacts/'+editingId,data):await LV.API.post('/contacts',data);
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-save me-2"></i>Save Contact';
+    if(res&&res.success){
+      var name=document.getElementById('c-name').value.trim();
+      if(!editingId&&notifyContact){LV.Toast.success(name+' added! They will be notified about their role.');}
+      else if(!editingId){LV.Toast.success(name+' added silently.');}
+      else{LV.Toast.success('Contact updated!');}
+      closeModal();await loadContacts();
+    }
+    else{var al=document.getElementById('contact-alert');al.style.display='block';al.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>'+(res?res.message:'Failed to save')+'</div>';}
+  });
+  await loadContacts();
+});
+async function loadContacts(){
+  var res=await LV.API.get('/contacts');
+  if(!res||!res.success){document.getElementById('contacts-grid').innerHTML='<div class="col-12 text-center py-5" style="color:var(--text-2)">Failed to load contacts</div>';return;}
+  var contacts=res.contacts;
+  document.getElementById('total-count').textContent=contacts.length;
+  document.getElementById('emergency-count').textContent=contacts.filter(c=>c.can_trigger_emergency).length;
+  var grid=document.getElementById('contacts-grid');
+  if(!contacts.length){grid.innerHTML='<div class="col-12 text-center py-5"><i class="fas fa-users" style="font-size:3rem;color:var(--text-2);display:block;margin-bottom:1rem"></i><div style="color:var(--text-2);font-size:.95rem;margin-bottom:1rem">No trusted contacts yet</div><button onclick="openAddModal()" class="btn-vault-primary" style="padding:.5rem 1.25rem;font-size:.82rem"><i class="fas fa-user-plus"></i>Add First Contact</button></div>';return;}
+  grid.innerHTML=contacts.map(c=>`<div class="col-md-6 col-lg-4"><div class="contact-card"><div class="d-flex align-items-start justify-content-between mb-3"><div class="d-flex align-items-center gap-3"><div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.1rem;flex-shrink:0">${c.name.charAt(0).toUpperCase()}</div><div><div style="font-weight:700;color:var(--text);font-size:.9rem">${c.name}</div><div style="color:var(--text-2);font-size:.78rem">${c.relationship||'Contact'}</div></div></div><div class="dropdown"><button class="btn btn-sm" style="background:none;border:none;color:var(--text-2);padding:.25rem .5rem" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button><ul class="dropdown-menu dropdown-menu-end" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;font-size:.82rem"><li><a class="dropdown-item" href="#" style="color:var(--text)" onclick="openEditModal(${JSON.stringify(c).replace(/"/g,'&quot;')});return false"><i class="fas fa-edit me-2" style="color:var(--primary)"></i>Edit</a></li><li><hr class="dropdown-divider" style="border-color:var(--border)"></li><li><a class="dropdown-item" href="#" style="color:var(--danger)" onclick="deleteContact(${c.id},'${c.name}');return false"><i class="fas fa-trash me-2"></i>Remove</a></li></ul></div></div><div class="d-flex flex-column gap-1 mb-3"><div style="font-size:.78rem;color:var(--text-2)"><i class="fas fa-envelope me-2" style="width:14px;color:var(--primary)"></i>${c.email}</div>${c.phone?`<div style="font-size:.78rem;color:var(--text-2)"><i class="fas fa-phone me-2" style="width:14px;color:var(--primary)"></i>${c.phone}</div>`:''}</div><div class="d-flex align-items-center justify-content-between"><span class="badge-vault ${accessClasses[c.access_level]||'access-view'}" style="padding:.25rem .75rem;border-radius:20px;font-size:.72rem;font-weight:700">${accessLabels[c.access_level]||c.access_level}</span>${c.can_trigger_emergency?'<span style="font-size:.72rem;color:var(--danger);font-weight:600"><i class="fas fa-exclamation-triangle me-1"></i>Emergency</span>':''}</div></div></div>`).join('');
+}
+function openAddModal(){
+  editingId=null;
+  document.getElementById('modal-title').textContent='Add Trusted Contact';
+  document.getElementById('contact-form').reset();
+  document.getElementById('contact-alert').style.display='none';
+  document.getElementById('notify-yes').checked=true;
+  document.getElementById('notify-section').style.display='block';
+  document.getElementById('contact-modal').classList.add('show');
+}
+function openEditModal(c){
+  editingId=c.id;
+  document.getElementById('modal-title').textContent='Edit Contact';
+  document.getElementById('c-name').value=c.name;
+  document.getElementById('c-email').value=c.email;
+  document.getElementById('c-phone').value=c.phone||'';
+  document.getElementById('c-relationship').value=c.relationship||'';
+  document.getElementById('c-access').value=c.access_level;
+  document.getElementById('c-emergency').checked=!!c.can_trigger_emergency;
+  document.getElementById('contact-alert').style.display='none';
+  document.getElementById('notify-section').style.display='none'; // hide when editing
+  document.getElementById('contact-modal').classList.add('show');
+}
+function closeModal(){document.getElementById('contact-modal').classList.remove('show');editingId=null;}
+async function deleteContact(id,name){LV.confirm('Remove '+name+' from your trusted contacts?',async function(){var res=await LV.API.delete('/contacts/'+id);if(res&&res.success){LV.Toast.success('Contact removed');await loadContacts();}else LV.Toast.error(res?res.message:'Failed to remove');});}
+</script></body></html>

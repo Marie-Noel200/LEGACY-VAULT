@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Security Settings — Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+<style>
+.sec-section{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.75rem;margin-bottom:1.25rem}
+.info-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid rgba(79,70,229,.07)}
+.info-row:last-child{border-bottom:none}
+.strength-bar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:.4rem}
+.strength-fill{height:100%;border-radius:3px;transition:all .3s}
+.req-item{font-size:.78rem;color:var(--text-2);display:flex;align-items:center;gap:6px;margin-bottom:.25rem;transition:color .2s}
+.req-item.met{color:var(--accent)}
+.protect-item{display:flex;align-items:center;gap:10px;padding:.75rem;background:rgba(34,197,94,.05);border-radius:10px;border:1px solid rgba(34,197,94,.12)}
+</style></head>
+<body>
+<script>if(!localStorage.getItem('lv_token')){window.location.href='/login';}</script>
+<div id="sidebar" class="sidebar"><div class="sidebar-logo"><a href="/dashboard" class="d-flex align-items-center gap-2 text-decoration-none"><img src="/img/logo.svg" height="34" alt="LV"><span class="brand-text" style="font-size:1rem">Legacy<span>Vault</span></span></a></div><nav class="sidebar-nav"><div class="sidebar-section-title">Main</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li><li class="nav-item"><a class="nav-link" href="/vault"><i class="fas fa-folder-open"></i>Document Vault</a></li><li class="nav-item"><a class="nav-link" href="/contacts"><i class="fas fa-users"></i>Trusted Contacts</a></li></ul><div class="sidebar-section-title">Security</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/security"><i class="fas fa-shield-alt"></i>Security Settings</a></li><li class="nav-item"><a class="nav-link" href="/activity"><i class="fas fa-chart-line"></i>Activity Monitor</a></li></ul><div class="sidebar-section-title">Access</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/emergency"><i class="fas fa-exclamation-triangle"></i>Emergency Access</a></li><li class="nav-item"><a class="nav-link" href="/profile"><i class="fas fa-user-circle"></i>Profile</a></li></ul><div style="padding:1rem 1.5rem;margin-top:auto;border-top:1px solid var(--border)"><a href="#" class="nav-link logout-btn" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i>Logout</a></div></nav></div>
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+<nav class="navbar-vault navbar px-3" style="position:sticky;top:0;z-index:100"><button id="sidebar-toggle" class="btn btn-sm me-3" style="background:var(--bg2);border:1px solid var(--border);color:var(--text-2)"><i class="fas fa-bars"></i></button><span class="brand-text d-lg-none" style="font-size:.95rem">Legacy<span>Vault</span></span><div class="ms-auto d-flex align-items-center gap-3"><button class="theme-toggle" title="Switch to Dark Mode"><i class="fas fa-moon"></i></button><div class="dropdown"><button class="btn d-flex align-items-center gap-2" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:.4rem .75rem" data-bs-toggle="dropdown"><div class="user-avatar-display" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff">U</div><span class="user-name-display d-none d-md-inline" style="font-size:.875rem;font-weight:500">User</span><i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.6"></i></button><ul class="dropdown-menu dropdown-menu-end" style="border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg)"><li><a class="dropdown-item" href="/profile" style="font-size:.875rem"><i class="fas fa-user me-2" style="color:var(--primary)"></i>Profile</a></li><li><a class="dropdown-item" href="/security" style="font-size:.875rem"><i class="fas fa-shield-alt me-2" style="color:var(--primary)"></i>Security</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item logout-btn" href="#" style="color:var(--danger);font-size:.875rem"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li></ul></div></div></nav>
+<div class="main-content" id="main-content"><div class="container-fluid px-4 py-4">
+  <div class="mb-4"><h4 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Security Settings</h4><p style="color:var(--text-2);font-size:.82rem;margin:0">Manage your account security and access controls</p></div>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="sec-section">
+        <div class="d-flex align-items-center gap-3 mb-4"><div style="width:44px;height:44px;border-radius:12px;background:#EEF2FF;display:flex;align-items:center;justify-content:center"><i class="fas fa-key" style="color:var(--primary)"></i></div><div><h6 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Change Password</h6><div style="color:var(--text-2);font-size:.78rem">Use a strong, unique password</div></div></div>
+        <div id="pw-alert" style="display:none" class="mb-3"></div>
+        <form id="pw-form" class="form-vault" novalidate>
+          <div class="mb-3"><label class="form-label">Current Password</label><div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" id="current-pw" class="form-control" placeholder="Current password" required><button type="button" class="password-toggle input-group-text"><i class="fas fa-eye"></i></button></div></div>
+          <div class="mb-3"><label class="form-label">New Password</label><div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" id="new-pw" class="form-control" placeholder="New password" required oninput="checkStrength(this.value)"><button type="button" class="password-toggle input-group-text"><i class="fas fa-eye"></i></button></div><div class="strength-bar"><div id="strength-fill" class="strength-fill"></div></div><div id="strength-label" style="font-size:.72rem;color:var(--text-2);margin-top:.25rem"></div></div>
+          <div class="mb-3"><label class="form-label">Confirm New Password</label><div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" id="confirm-pw" class="form-control" placeholder="Confirm new password" required><button type="button" class="password-toggle input-group-text"><i class="fas fa-eye"></i></button></div></div>
+          <div class="mb-4"><div class="row g-2"><div class="col-6"><div class="req-item" id="req-len"><i class="fas fa-circle" style="font-size:.45rem"></i>At least 8 characters</div></div><div class="col-6"><div class="req-item" id="req-upper"><i class="fas fa-circle" style="font-size:.45rem"></i>Uppercase letter</div></div><div class="col-6"><div class="req-item" id="req-lower"><i class="fas fa-circle" style="font-size:.45rem"></i>Lowercase letter</div></div><div class="col-6"><div class="req-item" id="req-num"><i class="fas fa-circle" style="font-size:.45rem"></i>Number</div></div><div class="col-6"><div class="req-item" id="req-special"><i class="fas fa-circle" style="font-size:.45rem"></i>Special character</div></div></div></div>
+          <button type="submit" id="pw-btn" class="btn-vault-primary" style="padding:.75rem 2rem"><i class="fas fa-save"></i>Update Password</button>
+        </form>
+      </div>
+      <div class="sec-section">
+        <div class="d-flex align-items-center gap-3 mb-3"><div style="width:44px;height:44px;border-radius:12px;background:#F0FDF4;display:flex;align-items:center;justify-content:center"><i class="fas fa-clock" style="color:var(--accent)"></i></div><div><h6 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Session Information</h6><div style="color:var(--text-2);font-size:.78rem">Your current session details</div></div></div>
+        <div class="info-row"><span style="font-size:.875rem;color:var(--text-2)">Authentication Method</span><span style="font-size:.875rem;font-weight:600;color:var(--text)"><i class="fas fa-shield-alt me-2" style="color:var(--primary)"></i>JWT Token</span></div>
+        <div class="info-row"><span style="font-size:.875rem;color:var(--text-2)">Session Duration</span><span style="font-size:.875rem;font-weight:600;color:var(--text)">24 hours</span></div>
+        <div class="info-row"><span style="font-size:.875rem;color:var(--text-2)">Last Login</span><span id="last-login" style="font-size:.875rem;font-weight:600;color:var(--text)">Loading...</span></div>
+        <div class="info-row"><span style="font-size:.875rem;color:var(--text-2)">Risk Score</span><span id="risk-display" style="font-size:.875rem;font-weight:600">Loading...</span></div>
+        <div class="mt-3"><button onclick="LV.confirm('Sign out of all sessions?',function(){logout();})" class="btn-vault-danger" style="padding:.5rem 1.25rem;font-size:.82rem"><i class="fas fa-sign-out-alt"></i>Sign Out All Sessions</button></div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="sec-section text-center mb-4">
+        <h6 style="font-family:'Playfair Display',serif;color:var(--text);margin-bottom:1.25rem">Security Score</h6>
+        <div id="score-circle" style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#5de88a);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 0 32px rgba(34,197,94,.25)"><div><div id="score-num" style="font-size:1.75rem;font-weight:800;color:#fff;line-height:1">—</div><div style="font-size:.55rem;color:rgba(255,255,255,.7);font-weight:700">/ 100</div></div></div>
+        <div id="score-label" style="font-size:.875rem;font-weight:600;color:var(--accent)">Loading...</div>
+      </div>
+      <div class="sec-section">
+        <h6 style="font-family:'Playfair Display',serif;color:var(--text);margin-bottom:1rem">Active Protections</h6>
+        <div class="d-flex flex-column gap-2">
+          <div class="protect-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">AES-256-CBC Encryption</div><div style="font-size:.7rem;color:var(--text-2)">All documents encrypted</div></div></div>
+          <div class="protect-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">bcrypt Password Hashing</div><div style="font-size:.7rem;color:var(--text-2)">Cost factor 12</div></div></div>
+          <div class="protect-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">Rate Limiting</div><div style="font-size:.7rem;color:var(--text-2)">5 attempts / 15 min</div></div></div>
+          <div class="protect-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">Behavioral Monitoring</div><div style="font-size:.7rem;color:var(--text-2)">Real-time risk scoring</div></div></div>
+          <div class="protect-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">SQL Injection Protection</div><div style="font-size:.7rem;color:var(--text-2)">Parameterized queries</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',async function(){
+  initSidebar();initUserInfo();initPasswordToggles();
+  document.querySelectorAll('.logout-btn').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();logout();}));
+  document.querySelectorAll('.sidebar-nav .nav-link').forEach(l=>{if(l.getAttribute('href')===window.location.pathname)l.classList.add('active');});
+  var[riskRes,meRes]=await Promise.all([LV.API.get('/logs/risk'),LV.API.get('/auth/me')]);
+  if(riskRes&&riskRes.success){
+    var s=riskRes.risk_score||0;var safe=100-s;
+    document.getElementById('score-num').textContent=safe;
+    var circle=document.getElementById('score-circle');var label=document.getElementById('score-label');
+    if(s>=70){circle.style.background='linear-gradient(135deg,#e74c3c,#c0392b)';circle.style.boxShadow='0 0 32px rgba(231,76,60,.3)';label.textContent='High Risk';label.style.color='#EF4444';}
+    else if(s>=40){circle.style.background='linear-gradient(135deg,#f39c12,#e67e22)';circle.style.boxShadow='0 0 32px rgba(243,156,18,.3)';label.textContent='Medium Risk';label.style.color='#f39c12';}
+    else{label.textContent='Low Risk — Good';}
+    document.getElementById('risk-display').innerHTML='<span style="color:'+(s>=70?'#EF4444':s>=40?'#f39c12':'var(--accent)')+'">'+(s>=70?'High':s>=40?'Medium':'Low')+' ('+s+')</span>';
+  }
+  if(meRes&&meRes.success)document.getElementById('last-login').textContent=LV.formatDate(meRes.user.last_login);
+  document.getElementById('pw-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var np=document.getElementById('new-pw').value;var cp=document.getElementById('confirm-pw').value;
+    if(np!==cp){showAlert('pw-alert','Passwords do not match','danger');return;}
+    var btn=document.getElementById('pw-btn');
+    btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+    var res=await LV.API.put('/auth/change-password',{current_password:document.getElementById('current-pw').value,new_password:np});
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-save me-2"></i>Update Password';
+    if(res&&res.success){LV.Toast.success('Password updated!');document.getElementById('pw-form').reset();document.getElementById('strength-fill').style.width='0';}
+    else showAlert('pw-alert',res?res.message:'Update failed','danger');
+  });
+});
+function showAlert(id,msg,type){var el=document.getElementById(id);el.style.display='block';el.innerHTML='<div class="alert-vault alert-vault-'+type+'"><i class="fas fa-'+(type==='danger'?'exclamation-circle':'check-circle')+'"></i>'+msg+'</div>';}
+function checkStrength(pw){
+  var s=LV.checkPasswordStrength(pw);var pct=Math.round((s.score/6)*100);
+  document.getElementById('strength-fill').style.width=pct+'%';document.getElementById('strength-fill').style.background=s.color;
+  document.getElementById('strength-label').innerHTML='<span style="color:'+s.color+'">'+s.level+'</span>';
+  var c=s.checks;
+  var set=(id,v)=>{var el=document.getElementById(id);if(el)el.className='req-item'+(v?' met':'');};
+  set('req-len',c.length);set('req-upper',c.uppercase);set('req-lower',c.lowercase);set('req-num',c.number);set('req-special',c.special);
+}
+</script></body></html>

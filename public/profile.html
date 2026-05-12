@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Profile — Legacy Vault</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"><link href="/css/style.css" rel="stylesheet">
+<style>
+.profile-section{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.75rem;margin-bottom:1.25rem}
+.info-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid rgba(79,70,229,.07)}
+.info-row:last-child{border-bottom:none}
+.sec-item{display:flex;align-items:center;gap:10px;padding:.75rem;background:rgba(34,197,94,.05);border-radius:10px;border:1px solid rgba(34,197,94,.12)}
+</style></head>
+<body>
+<script>if(!localStorage.getItem('lv_token')){window.location.href='/login';}</script>
+<div id="sidebar" class="sidebar"><div class="sidebar-logo"><a href="/dashboard" class="d-flex align-items-center gap-2 text-decoration-none"><img src="/img/logo.svg" height="34" alt="LV"><span class="brand-text" style="font-size:1rem">Legacy<span>Vault</span></span></a></div><nav class="sidebar-nav"><div class="sidebar-section-title">Main</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li><li class="nav-item"><a class="nav-link" href="/vault"><i class="fas fa-folder-open"></i>Document Vault</a></li><li class="nav-item"><a class="nav-link" href="/contacts"><i class="fas fa-users"></i>Trusted Contacts</a></li></ul><div class="sidebar-section-title">Security</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/security"><i class="fas fa-shield-alt"></i>Security Settings</a></li><li class="nav-item"><a class="nav-link" href="/activity"><i class="fas fa-chart-line"></i>Activity Monitor</a></li></ul><div class="sidebar-section-title">Access</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/emergency"><i class="fas fa-exclamation-triangle"></i>Emergency Access</a></li><li class="nav-item"><a class="nav-link" href="/profile"><i class="fas fa-user-circle"></i>Profile</a></li></ul><div style="padding:1rem 1.5rem;margin-top:auto;border-top:1px solid var(--border)"><a href="#" class="nav-link logout-btn" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i>Logout</a></div></nav></div>
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+<nav class="navbar-vault navbar px-3" style="position:sticky;top:0;z-index:100"><button id="sidebar-toggle" class="btn btn-sm me-3" style="background:var(--bg2);border:1px solid var(--border);color:var(--text-2)"><i class="fas fa-bars"></i></button><span class="brand-text d-lg-none" style="font-size:.95rem">Legacy<span>Vault</span></span><div class="ms-auto d-flex align-items-center gap-3"><button class="theme-toggle" title="Switch to Dark Mode"><i class="fas fa-moon"></i></button><div class="dropdown"><button class="btn d-flex align-items-center gap-2" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:.4rem .75rem" data-bs-toggle="dropdown"><div class="user-avatar-display" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff">U</div><span class="user-name-display d-none d-md-inline" style="font-size:.875rem;font-weight:500">User</span><i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.6"></i></button><ul class="dropdown-menu dropdown-menu-end" style="border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg)"><li><a class="dropdown-item" href="/profile" style="font-size:.875rem"><i class="fas fa-user me-2" style="color:var(--primary)"></i>Profile</a></li><li><a class="dropdown-item" href="/security" style="font-size:.875rem"><i class="fas fa-shield-alt me-2" style="color:var(--primary)"></i>Security</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item logout-btn" href="#" style="color:var(--danger);font-size:.875rem"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li></ul></div></div></nav>
+<div class="main-content" id="main-content"><div class="container-fluid px-4 py-4">
+  <div class="mb-4"><h4 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Profile</h4><p style="color:var(--text-2);font-size:.82rem;margin:0">Manage your account information</p></div>
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="profile-section text-center">
+        <div id="avatar-circle" style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 0 32px rgba(79,70,229,.3)"><span id="avatar-letter" style="font-size:2.2rem;font-weight:800;color:#fff">?</span></div>
+        <h5 id="profile-name" style="font-family:'Playfair Display',serif;color:var(--text);margin-bottom:.25rem">Loading...</h5>
+        <div id="profile-email" style="color:var(--text-2);font-size:.875rem;margin-bottom:1.25rem">...</div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:var(--accent);padding:.3rem .875rem;border-radius:20px;font-size:.78rem;font-weight:600"><i class="fas fa-shield-alt"></i>Account Secured</div>
+      </div>
+      <div class="profile-section">
+        <h6 style="font-family:'Playfair Display',serif;color:var(--text);margin-bottom:1rem;font-size:.95rem">Account Stats</h6>
+        <div class="info-row"><span style="font-size:.875rem;color:var(--text-2)">Member Since</span><span id="stat-joined" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+        <div class="info-row"><span style="font-size:.875rem;color:var(--text-2)">Last Login</span><span id="stat-login" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+        <div class="info-row"><span style="font-size:.875rem;color:var(--text-2)">Risk Score</span><span id="stat-risk" style="font-size:.875rem;font-weight:600">—</span></div>
+        <div class="info-row"><span style="font-size:.875rem;color:var(--text-2)">2FA Status</span><span id="stat-2fa" style="font-size:.875rem;font-weight:600;color:var(--text-2)">—</span></div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="profile-section">
+        <div class="d-flex align-items-center gap-3 mb-4"><div style="width:44px;height:44px;border-radius:12px;background:#EEF2FF;display:flex;align-items:center;justify-content:center"><i class="fas fa-user-edit" style="color:var(--primary)"></i></div><div><h6 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Edit Profile</h6><div style="color:var(--text-2);font-size:.78rem">Update your personal information</div></div></div>
+        <div id="profile-alert" style="display:none" class="mb-3"></div>
+        <form id="profile-form" class="form-vault" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Full Name</label><div class="input-group"><span class="input-group-text"><i class="fas fa-user"></i></span><input type="text" id="p-name" class="form-control" placeholder="Your full name"></div></div>
+            <div class="col-md-6"><label class="form-label">Email Address</label><div class="input-group"><span class="input-group-text"><i class="fas fa-envelope"></i></span><input type="email" id="p-email" class="form-control" disabled style="opacity:.5"></div><div style="font-size:.72rem;color:var(--text-2);margin-top:.25rem">Email cannot be changed</div></div>
+            <div class="col-md-6"><label class="form-label">Phone Number</label><div class="input-group"><span class="input-group-text"><i class="fas fa-phone"></i></span><input type="tel" id="p-phone" class="form-control" placeholder="+1 555 000 0000"></div></div>
+          </div>
+          <div class="mt-4"><button type="submit" id="profile-btn" class="btn-vault-primary" style="padding:.75rem 2rem"><i class="fas fa-save"></i>Save Changes</button></div>
+        </form>
+      </div>
+      <div class="profile-section">
+        <div class="d-flex align-items-center gap-3 mb-3"><div style="width:44px;height:44px;border-radius:12px;background:#F0FDF4;display:flex;align-items:center;justify-content:center"><i class="fas fa-shield-alt" style="color:var(--accent)"></i></div><div><h6 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Security Summary</h6><div style="color:var(--text-2);font-size:.78rem">Your account protection status</div></div></div>
+        <div class="row g-3">
+          <div class="col-md-6"><div class="sec-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">Password Protected</div><div style="font-size:.7rem;color:var(--text-2)">bcrypt hashed (cost 12)</div></div></div></div>
+          <div class="col-md-6"><div class="sec-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">JWT Authentication</div><div style="font-size:.7rem;color:var(--text-2)">Secure token sessions</div></div></div></div>
+          <div class="col-md-6"><div class="sec-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">AES-256 Encryption</div><div style="font-size:.7rem;color:var(--text-2)">All documents encrypted</div></div></div></div>
+          <div class="col-md-6"><div class="sec-item"><i class="fas fa-check-circle" style="color:var(--accent);flex-shrink:0"></i><div><div style="font-size:.78rem;font-weight:600;color:var(--text)">Activity Monitoring</div><div style="font-size:.7rem;color:var(--text-2)">Real-time risk scoring</div></div></div></div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+          <a href="/security" class="btn-vault-outline" style="padding:.4rem 1rem;font-size:.78rem"><i class="fas fa-key"></i>Change Password</a>
+          <a href="/activity" class="btn-vault-outline" style="padding:.4rem 1rem;font-size:.78rem"><i class="fas fa-chart-line"></i>View Activity</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',async function(){
+  initSidebar();initUserInfo();
+  document.querySelectorAll('.logout-btn').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();logout();}));
+  document.querySelectorAll('.sidebar-nav .nav-link').forEach(l=>{if(l.getAttribute('href')===window.location.pathname)l.classList.add('active');});
+  var res=await LV.API.get('/auth/me');
+  if(res&&res.success){
+    var u=res.user;
+    document.getElementById('avatar-letter').textContent=(u.full_name||'U').charAt(0).toUpperCase();
+    document.getElementById('profile-name').textContent=u.full_name||'User';
+    document.getElementById('profile-email').textContent=u.email;
+    document.getElementById('p-name').value=u.full_name||'';
+    document.getElementById('p-email').value=u.email;
+    document.getElementById('p-phone').value=u.phone||'';
+    document.getElementById('stat-joined').textContent=new Date(u.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('stat-login').textContent=LV.formatDate(u.last_login);
+    var rs=u.risk_score||0;
+    document.getElementById('stat-risk').innerHTML='<span style="color:'+(rs>=70?'#EF4444':rs>=40?'#f39c12':'var(--accent)')+'">'+(rs>=70?'High':rs>=40?'Medium':'Low')+' ('+rs+')</span>';
+    document.getElementById('stat-2fa').textContent=u.two_factor_enabled?'Enabled':'Not Enabled';
+    document.getElementById('stat-2fa').style.color=u.two_factor_enabled?'var(--accent)':'var(--text-2)';
+  }
+  document.getElementById('profile-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var btn=document.getElementById('profile-btn');
+    btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    var res=await LV.API.put('/auth/profile',{full_name:document.getElementById('p-name').value.trim(),phone:document.getElementById('p-phone').value.trim()||undefined});
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-save me-2"></i>Save Changes';
+    var al=document.getElementById('profile-alert');
+    if(res&&res.success){
+      al.style.display='block';al.innerHTML='<div class="alert-vault alert-vault-success"><i class="fas fa-check-circle"></i>Profile updated successfully!</div>';
+      LV.Toast.success('Profile updated!');
+      var newName=document.getElementById('p-name').value.trim();
+      document.getElementById('profile-name').textContent=newName;
+      document.getElementById('avatar-letter').textContent=newName.charAt(0).toUpperCase();
+      var stored=LV.Auth.getUser();if(stored){stored.full_name=newName;localStorage.setItem('lv_user',JSON.stringify(stored));initUserInfo();}
+    }else{al.style.display='block';al.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>'+(res?res.message:'Update failed')+'</div>';}
+  });
+});
+</script></body></html>

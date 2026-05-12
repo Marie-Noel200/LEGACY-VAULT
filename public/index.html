@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Legacy Vault — Secure Your Digital Legacy</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+<style>
+body{background:var(--bg)}
+.nav-land{position:fixed;top:0;width:100%;z-index:1000;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.875rem 0;box-shadow:var(--shadow-sm)}
+body.dark-mode .nav-land{background:rgba(30,41,59,.95)}
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:80px;position:relative;overflow:hidden;background:linear-gradient(135deg,#F8FAFC 0%,#EEF2FF 50%,#F0FDF4 100%)}
+body.dark-mode .hero{background:linear-gradient(135deg,#0F172A 0%,#1E1B4B 50%,#0F2A1A 100%)}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#EEF2FF;border:1px solid #C7D2FE;color:var(--primary);padding:.35rem 1rem;border-radius:20px;font-size:.78rem;font-weight:600}
+body.dark-mode .hero-badge{background:rgba(129,140,248,.1);border-color:rgba(129,140,248,.3)}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+.hero-visual{position:relative;width:100%;height:420px;display:flex;align-items:center;justify-content:center}
+.hero-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;box-shadow:var(--shadow-lg);position:absolute}
+body.dark-mode .hero-card{background:var(--card);border-color:var(--border)}
+.hero-icon-wrap{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;margin:0 auto 1.5rem;box-shadow:var(--shadow-xl)}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;transition:all .3s;height:100%;box-shadow:var(--shadow-sm)}
+.feat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--primary)}
+.feat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:1.1rem}
+.step-num{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;color:#fff;margin:0 auto 1.1rem;box-shadow:0 4px 16px rgba(79,70,229,.3)}
+.tcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;height:100%;box-shadow:var(--shadow-sm)}
+.section-tag{display:inline-block;background:#EEF2FF;border:1px solid #C7D2FE;color:var(--primary);padding:.3rem .875rem;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem}
+body.dark-mode .section-tag{background:rgba(129,140,248,.1);border-color:rgba(129,140,248,.3)}
+.stat-strip{background:linear-gradient(135deg,var(--primary),var(--secondary));padding:3rem 0}
+footer{background:var(--text);padding:3rem 0 1.5rem}
+body.dark-mode footer{background:#020617}
+</style></head>
+<body>
+<nav class="nav-land">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a href="/" class="d-flex align-items-center gap-2 text-decoration-none"><img src="/img/logo.svg" height="38" alt="Legacy Vault"><span class="brand-text" style="font-size:1.1rem">Legacy<span>Vault</span></span></a>
+    <div class="d-flex align-items-center gap-3">
+      <button class="theme-toggle" title="Switch to Dark Mode"><i class="fas fa-moon"></i></button>
+      <a href="/login" class="btn-vault-outline" style="padding:.4rem 1.1rem;font-size:.82rem">Sign In</a>
+      <a href="/register" class="btn-vault-primary" style="padding:.4rem 1.1rem;font-size:.82rem"><i class="fas fa-lock"></i>Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container" style="position:relative;z-index:1">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="hero-badge mb-4"><span class="pulse"></span>Military-Grade Security Active</div>
+        <h1 style="font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:800;line-height:1.1;margin-bottom:1.5rem">Your Legacy.<br><span class="grad-text">Encrypted. Protected.</span><br>Delivered.</h1>
+        <p style="font-size:1rem;color:var(--text-2);line-height:1.85;max-width:500px;margin-bottom:2.5rem">Legacy Vault is the most intelligent digital will management platform. AES-256 encryption, 2-of-3 multi-party verification, and behavioral AI monitoring — so your most important documents are always safe.</p>
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <a href="/register" class="btn-vault-primary" style="padding:.875rem 2rem;font-size:.95rem"><i class="fas fa-shield-alt"></i>Secure My Legacy</a>
+          <a href="#features" class="btn-vault-outline" style="padding:.875rem 2rem;font-size:.95rem"><i class="fas fa-play-circle"></i>See How It Works</a>
+        </div>
+        <div class="d-flex gap-3 flex-wrap">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.5rem 1rem;text-align:center;box-shadow:var(--shadow-sm)"><div style="font-size:.95rem;font-weight:800;color:var(--primary);font-family:Inter,sans-serif">AES-256</div><div style="font-size:.68rem;color:var(--text-3);font-weight:500">Encryption</div></div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.5rem 1rem;text-align:center;box-shadow:var(--shadow-sm)"><div style="font-size:.95rem;font-weight:800;color:var(--primary);font-family:Inter,sans-serif">bcrypt</div><div style="font-size:.68rem;color:var(--text-3);font-weight:500">Password Hash</div></div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.5rem 1rem;text-align:center;box-shadow:var(--shadow-sm)"><div style="font-size:.95rem;font-weight:800;color:var(--primary);font-family:Inter,sans-serif">2-of-3</div><div style="font-size:.68rem;color:var(--text-3);font-weight:500">Verification</div></div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.5rem 1rem;text-align:center;box-shadow:var(--shadow-sm)"><div style="font-size:.95rem;font-weight:800;color:var(--primary);font-family:Inter,sans-serif">JWT</div><div style="font-size:.68rem;color:var(--text-3);font-weight:500">Auth Tokens</div></div>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="hero-visual">
+          <div style="width:320px;height:320px;border-radius:50%;background:linear-gradient(135deg,rgba(79,70,229,.08),rgba(34,197,94,.06));border:1px solid rgba(79,70,229,.15);display:flex;align-items:center;justify-content:center">
+            <div style="width:220px;height:220px;border-radius:50%;background:linear-gradient(135deg,rgba(79,70,229,.12),rgba(34,197,94,.08));border:1px solid rgba(79,70,229,.2);display:flex;align-items:center;justify-content:center">
+              <div class="hero-icon-wrap"><img src="/img/logo.svg" width="44" alt="LV"></div>
+            </div>
+          </div>
+          <div class="hero-card" style="top:20px;right:0;min-width:160px"><div style="font-size:.65rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Encryption</div><div style="font-size:.82rem;font-weight:700;color:var(--accent)"><i class="fas fa-lock me-1"></i>AES-256 Active</div></div>
+          <div class="hero-card" style="bottom:60px;left:0;min-width:150px"><div style="font-size:.65rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Risk Score</div><div style="font-size:.82rem;font-weight:700;color:var(--primary)"><i class="fas fa-shield-alt me-1"></i>Low — Secure</div></div>
+          <div class="hero-card" style="bottom:10px;right:10px;min-width:140px"><div style="font-size:.65rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Verification</div><div style="font-size:.82rem;font-weight:700;color:var(--accent)"><i class="fas fa-users me-1"></i>2-of-3 Ready</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="padding:6rem 0;background:var(--bg)">
+  <div class="container">
+    <div class="text-center mb-5"><div class="section-tag">Features</div><h2 style="font-size:2.3rem">Built for the Serious.<br><span class="grad-text">Engineered for the Inevitable.</span></h2><p style="color:var(--text-2);max-width:500px;margin:.875rem auto 0;font-size:.95rem">Every feature exists for one reason — to make sure your legacy reaches the right hands, at the right time, without compromise.</p></div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4"><div class="feat-card"><div class="feat-icon" style="background:#EEF2FF;color:var(--primary)"><i class="fas fa-lock"></i></div><h5 style="margin-bottom:.75rem;font-size:1rem">AES-256-CBC Encryption</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75;margin:0">Every document encrypted with military-grade AES-256-CBC before storage. Unreadable without your key — even to us.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feat-card"><div class="feat-icon" style="background:#F0FDF4;color:var(--accent)"><i class="fas fa-users-cog"></i></div><h5 style="margin-bottom:.75rem;font-size:1rem">2-of-3 Multi-Party Verification</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75;margin:0">Emergency access requires 2 out of 3 trusted contacts to approve using unique time-limited codes. No single point of failure.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feat-card"><div class="feat-icon" style="background:#EFF6FF;color:var(--info)"><i class="fas fa-brain"></i></div><h5 style="margin-bottom:.75rem;font-size:1rem">Behavioral AI Monitoring</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75;margin:0">Real-time analysis of login patterns, IP addresses, and access behavior. Anomalies scored and flagged before they become threats.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feat-card"><div class="feat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-exclamation-triangle"></i></div><h5 style="margin-bottom:.75rem;font-size:1rem">Smart Emergency Access</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75;margin:0">Inactivity detection triggers emergency workflows automatically. Your loved ones get access when they need it — not before.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feat-card"><div class="feat-icon" style="background:#EEF2FF;color:var(--primary)"><i class="fas fa-user-shield"></i></div><h5 style="margin-bottom:.75rem;font-size:1rem">Granular Contact Permissions</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75;margin:0">Assign up to 10 trusted contacts with precise access levels — view only, full access, or emergency-only. You stay in control.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feat-card"><div class="feat-icon" style="background:#F0FDF4;color:var(--accent)"><i class="fas fa-clipboard-list"></i></div><h5 style="margin-bottom:.75rem;font-size:1rem">Immutable Audit Trail</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75;margin:0">Every action logged with timestamps, IP addresses, and risk classification. Complete transparency, zero blind spots.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:6rem 0;background:var(--bg2)">
+  <div class="container">
+    <div class="text-center mb-5"><div class="section-tag">How It Works</div><h2 style="font-size:2.2rem">Three Steps to <span class="grad-text">Permanent Peace of Mind</span></h2></div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4 text-center"><div class="step-num">1</div><h5 style="margin-bottom:.75rem">Create Your Vault</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75">Register in under 2 minutes. Protected with bcrypt hashing and JWT authentication from the first second.</p></div>
+      <div class="col-md-4 text-center"><div class="step-num">2</div><h5 style="margin-bottom:.75rem">Encrypt Your Documents</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75">Upload wills, deeds, financial records, insurance policies. Every file AES-256 encrypted automatically.</p></div>
+      <div class="col-md-4 text-center"><div class="step-num">3</div><h5 style="margin-bottom:.75rem">Assign &amp; Relax</h5><p style="color:var(--text-2);font-size:.875rem;line-height:1.75">Add trusted contacts, set access levels, configure emergency triggers. The system handles the rest — intelligently.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="stat-strip">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3"><div style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Inter,sans-serif">AES-256</div><div style="color:rgba(255,255,255,.7);font-size:.78rem;margin-top:.25rem">Document Encryption</div></div>
+      <div class="col-6 col-md-3"><div style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Inter,sans-serif">bcrypt</div><div style="color:rgba(255,255,255,.7);font-size:.78rem;margin-top:.25rem">Password Hashing</div></div>
+      <div class="col-6 col-md-3"><div style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Inter,sans-serif">2-of-3</div><div style="color:rgba(255,255,255,.7);font-size:.78rem;margin-top:.25rem">Multi-Party Verify</div></div>
+      <div class="col-6 col-md-3"><div style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Inter,sans-serif">24/7</div><div style="color:rgba(255,255,255,.7);font-size:.78rem;margin-top:.25rem">Behavioral Monitoring</div></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:6rem 0;background:var(--bg)">
+  <div class="container">
+    <div class="text-center mb-5"><div class="section-tag">Trusted By</div><h2 style="font-size:2.2rem">Families Who Think <span class="grad-text">Ahead</span></h2></div>
+    <div class="row g-4">
+      <div class="col-md-4"><div class="tcard"><div style="color:#F59E0B;margin-bottom:.875rem;font-size:.85rem"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p style="color:var(--text-2);font-size:.9rem;line-height:1.75;margin-bottom:1.25rem">"Legacy Vault is the only platform I've found that takes encryption seriously. The 2-of-3 verification is exactly what estate planning needed."</p><div class="d-flex align-items-center gap-3"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem">JM</div><div><div style="font-weight:600;color:var(--text);font-size:.875rem">James Morrison</div><div style="color:var(--text-3);font-size:.78rem">Estate Attorney</div></div></div></div></div>
+      <div class="col-md-4"><div class="tcard"><div style="color:#F59E0B;margin-bottom:.875rem;font-size:.85rem"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p style="color:var(--text-2);font-size:.9rem;line-height:1.75;margin-bottom:1.25rem">"The behavioral monitoring caught a suspicious login I didn't know about. This isn't just storage — it's active protection."</p><div class="d-flex align-items-center gap-3"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-d));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem">SR</div><div><div style="font-weight:600;color:var(--text);font-size:.875rem">Sarah Reynolds</div><div style="color:var(--text-3);font-size:.78rem">Business Owner</div></div></div></div></div>
+      <div class="col-md-4"><div class="tcard"><div style="color:#F59E0B;margin-bottom:.875rem;font-size:.85rem"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p style="color:var(--text-2);font-size:.9rem;line-height:1.75;margin-bottom:1.25rem">"I recommend Legacy Vault to every client asking about digital estate planning. The audit trail alone is worth it for compliance."</p><div class="d-flex align-items-center gap-3"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--info),#2563EB);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem">DK</div><div><div style="font-weight:600;color:var(--text);font-size:.875rem">David Kim</div><div style="color:var(--text-3);font-size:.78rem">Financial Advisor</div></div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:5rem 0;background:var(--bg2)">
+  <div class="container text-center">
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#F0FDF4;border:1px solid #BBF7D0;color:var(--accent-d);padding:.3rem .875rem;border-radius:20px;font-size:.75rem;font-weight:600;margin-bottom:1.25rem"><i class="fas fa-shield-alt"></i>Zero-Knowledge Architecture</div>
+    <h2 style="font-size:2.3rem;margin-bottom:1rem">The Best Time to Secure<br>Your Legacy Was Yesterday.</h2>
+    <p style="color:var(--text-2);font-size:.95rem;max-width:440px;margin:0 auto 2rem">The second best time is right now. Stop leaving your most important documents to chance.</p>
+    <a href="/register" class="btn-vault-primary" style="padding:1rem 2.5rem;font-size:.95rem"><i class="fas fa-lock"></i>Create Your Free Vault</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="row g-4 mb-4">
+      <div class="col-lg-5"><a href="/" class="d-inline-block mb-3"><img src="/img/logo.svg" height="40" alt="LV"></a><p style="color:#94A3B8;font-size:.875rem;line-height:1.75;max-width:300px">The most intelligent digital will management platform. Protect your legacy with military-grade encryption and behavioral AI.</p></div>
+      <div class="col-lg-3 col-6"><h6 style="color:#F1F5F9;font-weight:600;margin-bottom:1rem;font-size:.875rem">Platform</h6><ul style="list-style:none;padding:0;margin:0"><li class="mb-2"><a href="/register" style="color:#94A3B8;text-decoration:none;font-size:.875rem">Get Started</a></li><li class="mb-2"><a href="/login" style="color:#94A3B8;text-decoration:none;font-size:.875rem">Sign In</a></li><li><a href="#features" style="color:#94A3B8;text-decoration:none;font-size:.875rem">Features</a></li></ul></div>
+      <div class="col-lg-4 col-6"><h6 style="color:#F1F5F9;font-weight:600;margin-bottom:1rem;font-size:.875rem">Security Stack</h6><div class="d-flex flex-wrap gap-2"><span style="background:rgba(79,70,229,.2);color:#A5B4FC;padding:.25rem .75rem;border-radius:20px;font-size:.72rem;font-weight:600"><i class="fas fa-lock me-1"></i>AES-256</span><span style="background:rgba(34,197,94,.2);color:#86EFAC;padding:.25rem .75rem;border-radius:20px;font-size:.72rem;font-weight:600"><i class="fas fa-key me-1"></i>bcrypt</span><span style="background:rgba(79,70,229,.2);color:#A5B4FC;padding:.25rem .75rem;border-radius:20px;font-size:.72rem;font-weight:600"><i class="fas fa-shield-alt me-1"></i>JWT</span><span style="background:rgba(34,197,94,.2);color:#86EFAC;padding:.25rem .75rem;border-radius:20px;font-size:.72rem;font-weight:600"><i class="fas fa-brain me-1"></i>AI Monitor</span></div></div>
+    </div>
+    <div style="border-top:1px solid #1E293B;padding-top:1.5rem;text-align:center"><p style="color:#475569;font-size:.78rem;margin:0">© 2026 Legacy Vault. All rights reserved. Built with security-first principles.</p></div>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){if(localStorage.getItem('lv_token')){document.querySelectorAll('a[href="/register"]').forEach(function(a){a.href='/dashboard';});}});</script>
+</body></html>
+</body></html>

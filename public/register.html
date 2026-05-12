@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Create Account — Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+<style>
+body{margin:0;padding:0;min-height:100vh;display:flex;background:var(--bg)}
+.auth-left{width:42%;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:2.5rem;position:relative;overflow:hidden;background:#0A0E27}
+/* Security-themed background: circuit board / grid pattern */
+.auth-left::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(79,70,229,.15) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,70,229,.15) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse 100% 100% at 50% 50%,black 40%,transparent 100%);
+}
+/* Glowing orbs */
+.auth-left::after{
+  content:'';position:absolute;
+  width:350px;height:350px;
+  background:radial-gradient(circle,rgba(79,70,229,.25) 0%,transparent 70%);
+  border-radius:50%;top:-80px;right:-80px;pointer-events:none;
+}
+.orb-bottom{position:absolute;width:250px;height:250px;background:radial-gradient(circle,rgba(99,102,241,.2) 0%,transparent 70%);border-radius:50%;bottom:-60px;left:-40px;pointer-events:none}
+/* Floating security nodes */
+.node{position:absolute;border-radius:50%;border:1px solid rgba(79,70,229,.4);display:flex;align-items:center;justify-content:center;color:rgba(165,180,252,.7);font-size:.75rem}
+.auth-right{flex:1;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:2rem;overflow-y:auto}
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2.5rem;width:100%;max-width:480px;box-shadow:var(--shadow-lg)}
+.strength-bar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:.4rem}
+.strength-fill{height:100%;border-radius:3px;transition:all .3s ease;width:0}
+.req-item{font-size:.78rem;color:var(--text-3);display:flex;align-items:center;gap:6px;margin-bottom:.25rem;transition:color .2s}
+.req-item.met{color:var(--accent)}
+.benefit-item{display:flex;align-items:flex-start;gap:12px;padding:.7rem 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.benefit-item:last-child{border-bottom:none}
+.benefit-icon{width:32px;height:32px;border-radius:8px;background:rgba(79,70,229,.25);border:1px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem}
+.back-btn{display:inline-flex;align-items:center;gap:8px;color:rgba(165,180,252,.8);text-decoration:none;font-size:.82rem;font-weight:500;padding:.4rem .875rem;border-radius:8px;border:1px solid rgba(99,102,241,.3);background:rgba(79,70,229,.15);transition:all .2s;backdrop-filter:blur(4px)}
+.back-btn:hover{color:#fff;background:rgba(79,70,229,.3);border-color:rgba(99,102,241,.5)}
+.stat-row{display:flex;gap:1rem;margin-top:1.5rem}
+.stat-box{flex:1;background:rgba(79,70,229,.15);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:.75rem;text-align:center}
+.stat-box .num{font-size:1.1rem;font-weight:800;color:#fff;font-family:Inter,sans-serif}
+.stat-box .lbl{font-size:.65rem;color:rgba(165,180,252,.7);font-weight:500;margin-top:.1rem;text-transform:uppercase;letter-spacing:.05em}
+@media(max-width:768px){.auth-left{display:none}.auth-right{width:100%}}
+</style></head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()" style="position:fixed;top:1rem;right:1rem;z-index:1000" title="Switch to Dark Mode"><i class="fas fa-moon"></i></button>
+<div class="auth-left">
+  <div class="orb-bottom"></div>
+  <!-- Floating security nodes -->
+  <div class="node" style="width:44px;height:44px;top:18%;left:8%"><i class="fas fa-lock"></i></div>
+  <div class="node" style="width:36px;height:36px;top:38%;right:10%"><i class="fas fa-shield-alt"></i></div>
+  <div class="node" style="width:40px;height:40px;bottom:30%;left:12%"><i class="fas fa-key"></i></div>
+  <div class="node" style="width:32px;height:32px;bottom:20%;right:15%"><i class="fas fa-file-alt"></i></div>
+  <!-- Circuit connection lines -->
+  <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.18" xmlns="http://www.w3.org/2000/svg">
+    <line x1="15%" y1="20%" x2="50%" y2="50%" stroke="#6366F1" stroke-width="1" stroke-dasharray="5,5"/>
+    <line x1="88%" y1="40%" x2="50%" y2="50%" stroke="#6366F1" stroke-width="1" stroke-dasharray="5,5"/>
+    <line x1="18%" y1="70%" x2="50%" y2="50%" stroke="#6366F1" stroke-width="1" stroke-dasharray="5,5"/>
+    <line x1="82%" y1="80%" x2="50%" y2="50%" stroke="#6366F1" stroke-width="1" stroke-dasharray="5,5"/>
+    <circle cx="50%" cy="50%" r="5" fill="#4F46E5" opacity="0.7"/>
+    <circle cx="50%" cy="50%" r="12" fill="none" stroke="#4F46E5" stroke-width="1" opacity="0.3"/>
+  </svg>
+  <div style="position:relative;z-index:1;width:100%;max-width:320px">
+    <!-- Back to home button -->
+    <a href="/" class="back-btn mb-4 d-inline-flex">
+      <i class="fas fa-arrow-left" style="font-size:.75rem"></i>Back to Home
+    </a>
+    <!-- Logo -->
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <img src="/img/logo.svg" height="38" alt="Legacy Vault" style="filter:brightness(0) invert(1) opacity(.9)">
+    </div>
+    <!-- Headline -->
+    <h2 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.75rem;font-weight:700;line-height:1.25;margin-bottom:.75rem">
+      Build Your<br><span style="color:#A5B4FC">Digital Legacy.</span>
+    </h2>
+    <p style="color:rgba(165,180,252,.75);font-size:.875rem;line-height:1.75;margin-bottom:1.75rem">
+      Join thousands of families who have stopped leaving their most important documents to chance.
+    </p>
+    <!-- Benefits list -->
+    <div style="margin-bottom:1.5rem">
+      <div class="benefit-item">
+        <div class="benefit-icon"><i class="fas fa-lock" style="color:#A5B4FC"></i></div>
+        <div>
+          <div style="color:#fff;font-size:.82rem;font-weight:600;margin-bottom:.15rem">AES-256-CBC Encryption</div>
+          <div style="color:rgba(165,180,252,.65);font-size:.75rem;line-height:1.5">Every document encrypted before storage</div>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon"><i class="fas fa-users" style="color:#86EFAC"></i></div>
+        <div>
+          <div style="color:#fff;font-size:.82rem;font-weight:600;margin-bottom:.15rem">2-of-3 Multi-Party Verification</div>
+          <div style="color:rgba(165,180,252,.65);font-size:.75rem;line-height:1.5">Emergency access requires trusted contact approval</div>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon"><i class="fas fa-brain" style="color:#A5B4FC"></i></div>
+        <div>
+          <div style="color:#fff;font-size:.82rem;font-weight:600;margin-bottom:.15rem">Behavioral AI Monitoring</div>
+          <div style="color:rgba(165,180,252,.65);font-size:.75rem;line-height:1.5">Real-time risk scoring and threat detection</div>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon"><i class="fas fa-clipboard-list" style="color:#86EFAC"></i></div>
+        <div>
+          <div style="color:#fff;font-size:.82rem;font-weight:600;margin-bottom:.15rem">Complete Audit Trail</div>
+          <div style="color:rgba(165,180,252,.65);font-size:.75rem;line-height:1.5">Every action logged with timestamps and IP</div>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon"><i class="fas fa-gift" style="color:#A5B4FC"></i></div>
+        <div>
+          <div style="color:#fff;font-size:.82rem;font-weight:600;margin-bottom:.15rem">Free Forever</div>
+          <div style="color:rgba(165,180,252,.65);font-size:.75rem;line-height:1.5">No credit card required, no hidden fees</div>
+        </div>
+      </div>
+    </div>
+    <!-- Stats row -->
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="num">AES-256</div>
+        <div class="lbl">Encryption</div>
+      </div>
+      <div class="stat-box">
+        <div class="num">2-of-3</div>
+        <div class="lbl">Verification</div>
+      </div>
+      <div class="stat-box">
+        <div class="num">24/7</div>
+        <div class="lbl">Monitoring</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="auth-right">
+  <div class="auth-card">
+    <div class="text-center mb-4">
+      <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;margin:0 auto .875rem;box-shadow:0 4px 16px rgba(79,70,229,.3)"><i class="fas fa-vault" style="color:#fff;font-size:1.3rem"></i></div>
+      <h3 style="font-family:'Playfair Display',serif;color:var(--text);font-size:1.5rem;margin-bottom:.25rem">Create Your Vault</h3>
+      <p style="color:var(--text-3);font-size:.875rem;margin:0">Secure your legacy in under 2 minutes</p>
+    </div>
+    <div id="alert-box" style="display:none" class="mb-3"></div>
+    <form id="reg-form" class="form-vault" novalidate>
+      <div class="row g-3">
+        <div class="col-12"><label class="form-label">Full Name</label><div class="input-group"><span class="input-group-text"><i class="fas fa-user"></i></span><input type="text" id="full_name" class="form-control" placeholder="John Smith" required></div></div>
+        <div class="col-12"><label class="form-label">Email Address</label><div class="input-group"><span class="input-group-text"><i class="fas fa-envelope"></i></span><input type="email" id="email" class="form-control" placeholder="your@email.com" required></div></div>
+        <div class="col-12"><label class="form-label">Phone <span style="color:var(--text-3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-phone"></i></span><input type="tel" id="phone" class="form-control" placeholder="+1 234 567 8900"></div></div>
+        <div class="col-12">
+          <label class="form-label">Password</label>
+          <div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" id="password" class="form-control" placeholder="Create a strong password" required oninput="checkStrength(this.value)"><button type="button" class="password-toggle input-group-text"><i class="fas fa-eye"></i></button></div>
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <div id="strength-label" style="font-size:.75rem;color:var(--text-3);margin-top:.25rem"></div>
+          <div class="mt-2">
+            <div class="req-item" id="req-len"><i class="fas fa-circle" style="font-size:.45rem"></i>At least 8 characters</div>
+            <div class="req-item" id="req-upper"><i class="fas fa-circle" style="font-size:.45rem"></i>One uppercase letter</div>
+            <div class="req-item" id="req-lower"><i class="fas fa-circle" style="font-size:.45rem"></i>One lowercase letter</div>
+            <div class="req-item" id="req-num"><i class="fas fa-circle" style="font-size:.45rem"></i>One number</div>
+            <div class="req-item" id="req-special"><i class="fas fa-circle" style="font-size:.45rem"></i>One special character (@$!%*?&)</div>
+          </div>
+        </div>
+        <div class="col-12"><label class="form-label">Confirm Password</label><div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" id="confirm_password" class="form-control" placeholder="Repeat your password" required oninput="checkMatch()"><button type="button" class="password-toggle input-group-text"><i class="fas fa-eye"></i></button></div><div id="match-msg" style="font-size:.78rem;margin-top:.3rem"></div></div>
+        <div class="col-12"><div class="form-check" style="padding:.875rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)"><input class="form-check-input" type="checkbox" id="terms" required><label class="form-check-label" for="terms" style="font-size:.82rem;color:var(--text-2)">I agree to the <a href="#" style="color:var(--primary)">Terms of Service</a> and <a href="#" style="color:var(--primary)">Privacy Policy</a></label></div></div>
+        <div class="col-12"><button type="submit" id="reg-btn" class="btn-vault-primary w-100" style="padding:.875rem;font-size:.95rem;justify-content:center"><i class="fas fa-lock"></i>Create My Vault</button></div>
+        <div class="col-12 text-center"><p style="color:var(--text-2);font-size:.875rem;margin:0">Already have an account? <a href="/login" style="color:var(--primary);font-weight:600;text-decoration:none">Sign in</a></p></div>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  LV.Auth.requireGuest();initPasswordToggles();
+  document.getElementById('reg-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var p=document.getElementById('password').value;var c=document.getElementById('confirm_password').value;var ab=document.getElementById('alert-box');
+    if(p!==c){ab.style.display='block';ab.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>Passwords do not match</div>';return;}
+    if(!document.getElementById('terms').checked){ab.style.display='block';ab.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>Please accept the terms</div>';return;}
+    var btn=document.getElementById('reg-btn');btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Creating vault...';ab.style.display='none';
+    var res=await LV.API.post('/auth/register',{full_name:document.getElementById('full_name').value,email:document.getElementById('email').value,phone:document.getElementById('phone').value||undefined,password:p});
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-lock me-2"></i>Create My Vault';
+    if(res&&res.success){LV.Toast.success('Vault created! Please sign in.');setTimeout(function(){window.location.href='/login';},1200);}
+    else{ab.style.display='block';ab.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>'+(res?res.message:'Registration failed')+'</div>';}
+  });
+});
+function checkStrength(p){
+  var checks={len:p.length>=8,upper:/[A-Z]/.test(p),lower:/[a-z]/.test(p),num:/[0-9]/.test(p),special:/[@$!%*?&]/.test(p)};
+  var score=Object.values(checks).filter(Boolean).length;
+  var colors=['','#EF4444','#EF4444','#F59E0B','#F59E0B','#22C55E'];
+  var labels=['','Very Weak','Weak','Fair','Good','Strong'];
+  var fill=document.getElementById('strength-fill');fill.style.width=(score*20)+'%';fill.style.background=colors[score]||'#EF4444';
+  var lbl=document.getElementById('strength-label');lbl.innerHTML=score>0?'<span style="color:'+colors[score]+'">'+labels[score]+'</span>':'';
+  var map={len:'req-len',upper:'req-upper',lower:'req-lower',num:'req-num',special:'req-special'};
+  Object.keys(map).forEach(function(k){var el=document.getElementById(map[k]);if(el)el.className='req-item'+(checks[k]?' met':'');});
+}
+function checkMatch(){
+  var p=document.getElementById('password').value;var c=document.getElementById('confirm_password').value;var msg=document.getElementById('match-msg');
+  if(!c.length){msg.innerHTML='';return;}
+  if(p===c)msg.innerHTML='<span style="color:var(--accent)"><i class="fas fa-check me-1"></i>Passwords match</span>';
+  else msg.innerHTML='<span style="color:var(--danger)"><i class="fas fa-times me-1"></i>Passwords do not match</span>';
+}
+</script>
+</body></html>

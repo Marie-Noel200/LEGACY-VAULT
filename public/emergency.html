@@ -1,0 +1,210 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Emergency Access — Legacy Vault</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"><link href="/css/style.css" rel="stylesheet">
+<style>
+.status-card{border-radius:18px;padding:1.5rem;border:1px solid var(--border)}
+.req-row{display:flex;align-items:center;justify-content:space-between;padding:.875rem 0;border-bottom:1px solid rgba(79,70,229,.07)}
+.req-row:last-child{border-bottom:none}
+.modal-vault{display:none;position:fixed;inset:0;background:rgba(2,7,16,.85);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-vault.show{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:2rem;width:90%;max-width:480px;box-shadow:0 24px 64px rgba(2,7,16,.8)}
+.step-item{display:flex;gap:14px;margin-bottom:1.25rem}
+.step-circle{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:.1rem}
+</style></head>
+<body>
+<script>if(!localStorage.getItem('lv_token')){window.location.href='/login';}</script>
+<div id="sidebar" class="sidebar"><div class="sidebar-logo"><a href="/dashboard" class="d-flex align-items-center gap-2 text-decoration-none"><img src="/img/logo.svg" height="34" alt="LV"><span class="brand-text" style="font-size:1rem">Legacy<span>Vault</span></span></a></div><nav class="sidebar-nav"><div class="sidebar-section-title">Main</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li><li class="nav-item"><a class="nav-link" href="/vault"><i class="fas fa-folder-open"></i>Document Vault</a></li><li class="nav-item"><a class="nav-link" href="/contacts"><i class="fas fa-users"></i>Trusted Contacts</a></li></ul><div class="sidebar-section-title">Security</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/security"><i class="fas fa-shield-alt"></i>Security Settings</a></li><li class="nav-item"><a class="nav-link" href="/activity"><i class="fas fa-chart-line"></i>Activity Monitor</a></li></ul><div class="sidebar-section-title">Access</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/emergency"><i class="fas fa-exclamation-triangle"></i>Emergency Access</a></li><li class="nav-item"><a class="nav-link" href="/profile"><i class="fas fa-user-circle"></i>Profile</a></li></ul><div style="padding:1rem 1.5rem;margin-top:auto;border-top:1px solid var(--border)"><a href="#" class="nav-link logout-btn" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i>Logout</a></div></nav></div>
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+<nav class="navbar-vault navbar px-3" style="position:sticky;top:0;z-index:100"><button id="sidebar-toggle" class="btn btn-sm me-3" style="background:var(--bg2);border:1px solid var(--border);color:var(--text-2)"><i class="fas fa-bars"></i></button><span class="brand-text d-lg-none" style="font-size:.95rem">Legacy<span>Vault</span></span><div class="ms-auto d-flex align-items-center gap-3"><button class="theme-toggle" title="Switch to Dark Mode"><i class="fas fa-moon"></i></button><div class="dropdown"><button class="btn d-flex align-items-center gap-2" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:.4rem .75rem" data-bs-toggle="dropdown"><div class="user-avatar-display" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff">U</div><span class="user-name-display d-none d-md-inline" style="font-size:.875rem;font-weight:500">User</span><i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.6"></i></button><ul class="dropdown-menu dropdown-menu-end" style="border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg)"><li><a class="dropdown-item" href="/profile" style="font-size:.875rem"><i class="fas fa-user me-2" style="color:var(--primary)"></i>Profile</a></li><li><a class="dropdown-item" href="/security" style="font-size:.875rem"><i class="fas fa-shield-alt me-2" style="color:var(--primary)"></i>Security</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item logout-btn" href="#" style="color:var(--danger);font-size:.875rem"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li></ul></div></div></nav>
+<div class="main-content" id="main-content"><div class="container-fluid px-4 py-4">
+  <div class="mb-4"><h4 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Emergency Access</h4><p style="color:var(--text-2);font-size:.82rem;margin:0">Configure emergency triggers and multi-party verification</p></div>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div id="status-card" class="status-card mb-4" style="background:var(--card)"><div class="text-center py-3"><div class="spinner-vault" style="margin:0 auto"></div></div></div>
+      <!-- 3-Stage Liveness Check Status -->
+      <div class="card-vault mb-4" id="liveness-card">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div style="width:40px;height:40px;border-radius:10px;background:#EEF2FF;display:flex;align-items:center;justify-content:center"><i class="fas fa-heartbeat" style="color:var(--primary)"></i></div>
+          <div><h6 style="font-family:'Playfair Display',serif;color:var(--text);margin:0;font-size:.95rem">Activity Check Status</h6><p style="color:var(--text-2);font-size:.75rem;margin:0">3-stage verification before emergency is triggered</p></div>
+        </div>
+        <div id="liveness-status"><div class="text-center py-2"><div class="spinner-vault" style="margin:0 auto"></div></div></div>
+      </div>
+      <div class="card-vault">
+        <div class="d-flex align-items-center justify-content-between mb-3"><h6 style="font-family:'Playfair Display',serif;color:var(--text);margin:0;font-size:.95rem">Access Requests</h6><button onclick="openTriggerModal()" class="btn-vault-danger" style="padding:.4rem 1rem;font-size:.78rem"><i class="fas fa-exclamation-triangle"></i>Trigger Emergency</button></div>
+        <div id="requests-list"><div class="text-center py-3"><div class="spinner-vault" style="margin:0 auto"></div></div></div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card-vault mb-4">
+        <div class="d-flex align-items-center gap-3 mb-3"><div style="width:40px;height:40px;border-radius:10px;background:#FFFBEB;display:flex;align-items:center;justify-content:center"><i class="fas fa-clock" style="color:#f39c12"></i></div><h6 style="font-family:'Playfair Display',serif;color:var(--text);margin:0;font-size:.95rem">Inactivity Threshold</h6></div>
+        <p style="color:var(--text-2);font-size:.78rem;line-height:1.65;margin-bottom:.5rem">Set your total inactivity period. The system divides it into <strong>3 equal checkpoints</strong> and sends you a "are you still active?" email at each one.</p>
+        <div id="threshold-preview" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.75rem;color:var(--text-2)">
+          e.g. 150 days → Check 1 at day 50, Check 2 at day 100, Check 3 at day 150
+        </div>
+        <div id="settings-alert" style="display:none" class="mb-3"></div>
+        <form id="settings-form" class="form-vault">
+          <div class="mb-3"><label class="form-label">Total Days of Inactivity</label><input type="number" id="threshold-days" class="form-control" min="30" max="730" value="150"><div style="font-size:.72rem;color:var(--text-2);margin-top:.25rem">Min: 30 days · Max: 730 days · Checkpoints at ÷3 intervals</div></div>
+          <button type="submit" id="settings-btn" class="btn-vault-primary w-100" style="justify-content:center;padding:.75rem"><i class="fas fa-save"></i>Save Settings</button>
+        </form>
+      </div>
+      <div class="card-vault">
+        <h6 style="font-family:'Playfair Display',serif;color:var(--text);margin-bottom:1rem;font-size:.95rem">How It Works</h6>
+        <div class="step-item"><div class="step-circle">1</div><div><div style="font-size:.82rem;font-weight:600;color:var(--text)">Check 1 — Day ⅓</div><div style="font-size:.75rem;color:var(--text-2);line-height:1.55">First "are you still active?" email sent. Click confirm → timer resets.</div></div></div>
+        <div class="step-item"><div class="step-circle">2</div><div><div style="font-size:.82rem;font-weight:600;color:var(--text)">Check 2 — Day ⅔</div><div style="font-size:.75rem;color:var(--text-2);line-height:1.55">Second check if you ignored Check 1. Still time to confirm.</div></div></div>
+        <div class="step-item"><div class="step-circle">3</div><div><div style="font-size:.82rem;font-weight:600;color:var(--text)">Check 3 — Final Day</div><div style="font-size:.75rem;color:var(--text-2);line-height:1.55">Final warning. Confirm now or emergency will be triggered.</div></div></div>
+        <div class="step-item"><div class="step-circle" style="background:linear-gradient(135deg,#EF4444,#DC2626)">!</div><div><div style="font-size:.82rem;font-weight:600;color:var(--text)">Emergency Triggered</div><div style="font-size:.75rem;color:var(--text-2);line-height:1.55">All 3 checks ignored → trusted contacts notified with codes.</div></div></div>
+        <div class="step-item" style="margin-bottom:0"><div class="step-circle">✓</div><div><div style="font-size:.82rem;font-weight:600;color:var(--text)">2-of-3 Approval</div><div style="font-size:.75rem;color:var(--text-2);line-height:1.55">2 out of 3 contacts approve → vault access granted.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="modal-vault" id="trigger-modal">
+  <div class="modal-box">
+    <div class="d-flex align-items-center justify-content-between mb-4"><h5 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Trigger Emergency Access</h5><button onclick="closeTriggerModal()" style="background:none;border:none;color:var(--text-2);font-size:1.2rem;cursor:pointer"><i class="fas fa-times"></i></button></div>
+    <div style="background:rgba(231,76,60,.07);border:1px solid rgba(231,76,60,.2);border-radius:12px;padding:1rem;margin-bottom:1.25rem"><div style="font-size:.82rem;font-weight:600;color:var(--danger);margin-bottom:.25rem"><i class="fas fa-exclamation-triangle me-2"></i>Warning</div><div style="font-size:.78rem;color:var(--text-2);line-height:1.6">This will notify all your trusted contacts and request emergency access. Only use this in a genuine emergency.</div></div>
+    <div id="trigger-alert" style="display:none" class="mb-3"></div>
+    <form id="trigger-form" class="form-vault">
+      <div class="mb-4"><label class="form-label">Reason (optional)</label><textarea id="trigger-reason" class="form-control" rows="3" placeholder="Explain the reason for emergency access..."></textarea></div>
+      <div class="d-flex gap-2">
+        <button type="button" onclick="closeTriggerModal()" class="btn-vault-secondary flex-fill" style="justify-content:center;padding:.75rem">Cancel</button>
+        <button type="submit" id="trigger-btn" class="btn-vault-danger flex-fill" style="justify-content:center;padding:.75rem"><i class="fas fa-exclamation-triangle"></i>Trigger Emergency</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',async function(){
+  initSidebar();initUserInfo();
+  document.querySelectorAll('.logout-btn').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();logout();}));
+  document.querySelectorAll('.sidebar-nav .nav-link').forEach(l=>{if(l.getAttribute('href')===window.location.pathname)l.classList.add('active');});
+
+  // Live preview of checkpoints as user types
+  var thresholdInput=document.getElementById('threshold-days');
+  function updatePreview(){
+    var d=parseInt(thresholdInput.value)||150;
+    var interval=Math.floor(d/3);
+    document.getElementById('threshold-preview').textContent=
+      d+' days → Check 1 at day '+interval+', Check 2 at day '+(interval*2)+', Check 3 at day '+(interval*3);
+  }
+  thresholdInput.addEventListener('input',updatePreview);
+
+  document.getElementById('settings-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var days=parseInt(document.getElementById('threshold-days').value);
+    if(days<30||days>730){LV.Toast.error('Threshold must be between 30 and 730 days');return;}
+    var btn=document.getElementById('settings-btn');btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    var res=await LV.API.put('/emergency/settings',{inactivity_threshold_days:days});
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-save me-2"></i>Save Settings';
+    if(res&&res.success){LV.Toast.success('Settings updated!');updatePreview();}else LV.Toast.error(res?res.message:'Update failed');
+  });
+  document.getElementById('trigger-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var btn=document.getElementById('trigger-btn');btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Triggering...';
+    var res=await LV.API.post('/emergency/trigger',{reason:document.getElementById('trigger-reason').value});
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-exclamation-triangle me-2"></i>Trigger Emergency';
+    if(res&&res.success){closeTriggerModal();await loadData();if(res.verification_codes&&res.verification_codes.length){showVerificationCodes(res.verification_codes,res.request.uuid);}else{LV.Toast.success('Emergency access request created!');}}
+    else{var al=document.getElementById('trigger-alert');al.style.display='block';al.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>'+(res?res.message:'Failed to trigger')+'</div>';}
+  });
+  await loadData();
+});
+async function loadData(){
+  var[statusRes,requestsRes]=await Promise.all([LV.API.get('/emergency/status'),LV.API.get('/emergency/requests')]);
+  if(statusRes&&statusRes.success){
+    var inact=statusRes.inactivity;
+    document.getElementById('threshold-days').value=inact.threshold_days||150;
+    // Update preview
+    var interval=Math.floor((inact.threshold_days||150)/3);
+    document.getElementById('threshold-preview').textContent=
+      (inact.threshold_days||150)+' days → Check 1 at day '+interval+', Check 2 at day '+(interval*2)+', Check 3 at day '+(interval*3);
+
+    // Status card
+    var sc=document.getElementById('status-card');
+    var isInactive=inact.is_inactive;
+    sc.style.background=isInactive?'rgba(231,76,60,.08)':'rgba(34,197,94,.06)';
+    sc.style.borderColor=isInactive?'rgba(231,76,60,.25)':'rgba(34,197,94,.2)';
+    sc.innerHTML='<div class="d-flex align-items-center gap-4"><div style="width:60px;height:60px;border-radius:50%;background:'+(isInactive?'linear-gradient(135deg,#e74c3c,#c0392b)':'linear-gradient(135deg,var(--accent),#5de88a)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 24px '+(isInactive?'rgba(231,76,60,.3)':'rgba(34,197,94,.25)')+'"><i class="fas '+(isInactive?'fa-exclamation-triangle':'fa-shield-alt')+'" style="color:#fff;font-size:1.4rem"></i></div><div><div style="font-size:1.05rem;font-weight:700;color:var(--text);font-family:Playfair Display,serif">'+(isInactive?'Inactivity Threshold Reached':'Vault Active &amp; Secure')+'</div><div style="color:var(--text-2);font-size:.82rem;margin-top:.25rem">'+inact.days_since_activity+' days since last activity &bull; Threshold: '+inact.threshold_days+' days</div></div></div>';
+
+    // Liveness check status
+    var lv=statusRes.liveness;
+    var checks=lv?lv.checks:[];
+    var ivDays=lv?lv.interval_days:Math.floor((inact.threshold_days||150)/3);
+    var missedChecks=inact.missed_checks||0;
+    var checkMap={};
+    checks.forEach(function(c){checkMap[c.check_number]=c;});
+
+    var checkColors={confirmed:'#22C55E',pending:'#4F46E5',sent:'#f39c12',expired:'#EF4444',missed:'#EF4444'};
+    var checkIcons={confirmed:'fa-check',pending:'fa-clock',sent:'fa-envelope',expired:'fa-times',missed:'fa-times'};
+
+    var rows='';
+    for(var n=1;n<=3;n++){
+      var c=checkMap[n];
+      var dayN=n*ivDays;
+      var status='upcoming';
+      var statusLabel='Upcoming (day '+dayN+')';
+      var statusColor='#94A3B8';
+      var icon='fa-circle';
+      if(c){
+        status=c.status;
+        if(c.status==='confirmed'){statusLabel='Confirmed ✓';statusColor='#22C55E';icon='fa-check-circle';}
+        else if(c.status==='pending'){statusLabel='Awaiting your response';statusColor='#4F46E5';icon='fa-clock';}
+        else if(c.status==='expired'){statusLabel='Expired (missed)';statusColor='#EF4444';icon='fa-times-circle';}
+      } else if(n<=missedChecks){
+        statusLabel='Missed';statusColor='#EF4444';icon='fa-times-circle';
+      }
+      rows+='<div style="display:flex;align-items:center;gap:12px;padding:.625rem 0;border-bottom:1px solid rgba(79,70,229,.06)">'
+        +'<div style="width:32px;height:32px;border-radius:50%;background:'+(status==='confirmed'?'#F0FDF4':status==='pending'?'#EEF2FF':status==='expired'||n<=missedChecks?'#FEF2F2':'var(--bg2)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+        +'<i class="fas '+icon+'" style="font-size:.8rem;color:'+statusColor+'"></i></div>'
+        +'<div style="flex:1"><div style="font-size:.82rem;font-weight:600;color:var(--text)">Check '+n+' — Day '+dayN+'</div>'
+        +'<div style="font-size:.75rem;color:'+statusColor+'">'+statusLabel+'</div></div>'
+        +(c&&c.confirmed_at?'<div style="font-size:.72rem;color:var(--text-2)">'+LV.formatDate(c.confirmed_at)+'</div>':'')
+        +'</div>';
+    }
+
+    var allMissed=missedChecks>=3;
+    var allGood=missedChecks===0&&checks.filter(function(c){return c.status==='confirmed';}).length===0;
+    var lsEl=document.getElementById('liveness-status');
+    lsEl.innerHTML=(allMissed?'<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:.875rem;margin-bottom:1rem;font-size:.82rem;color:#991B1B"><i class="fas fa-exclamation-triangle me-2"></i><strong>All 3 checks missed.</strong> Emergency access has been triggered.</div>':
+      missedChecks>0?'<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.875rem;margin-bottom:1rem;font-size:.82rem;color:#92400E"><i class="fas fa-exclamation-circle me-2"></i><strong>'+missedChecks+' of 3 checks missed.</strong> Please confirm your activity to prevent emergency access.</div>':
+      '<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:.875rem;margin-bottom:1rem;font-size:.82rem;color:#166534"><i class="fas fa-check-circle me-2"></i>All checks passed. Your vault is secure.</div>')
+      +rows;
+  }
+  if(requestsRes&&requestsRes.success){
+    var reqs=requestsRes.requests;
+    var el=document.getElementById('requests-list');
+    if(!reqs.length){el.innerHTML='<div class="text-center py-4" style="color:var(--accent);font-size:.875rem"><i class="fas fa-check-circle" style="font-size:2rem;display:block;margin-bottom:.75rem"></i>No emergency access requests</div>';return;}
+    var statusColors={pending:'#f39c12',approved:'var(--accent)',denied:'#EF4444',expired:'var(--text-2)'};
+    el.innerHTML=reqs.map(r=>'<div class="req-row"><div><div style="font-size:.875rem;font-weight:600;color:var(--text)">'+r.request_type.toUpperCase()+' ACCESS</div><div style="font-size:.75rem;color:var(--text-2)">'+(r.reason||'No reason provided')+' &bull; '+LV.formatDate(r.created_at)+'</div></div><div class="text-end"><div style="font-size:.78rem;font-weight:700;color:'+(statusColors[r.status]||'var(--text-2)')+';text-transform:uppercase">'+r.status+'</div><div style="font-size:.72rem;color:var(--text-2)">'+(r.approved_count||0)+'/'+r.approvals_required+' approvals</div></div></div>').join('');
+  }
+}
+function openTriggerModal(){document.getElementById('trigger-modal').classList.add('show');document.getElementById('trigger-form').reset();document.getElementById('trigger-alert').style.display='none';}
+function closeTriggerModal(){document.getElementById('trigger-modal').classList.remove('show');}
+function showVerificationCodes(codes, requestUuid){
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)';
+  var rows = codes.map(function(c){
+    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:.75rem">' +
+      '<div style="font-size:.82rem;font-weight:600;color:var(--text)">' + c.contact_name + '</div>' +
+      '<div style="font-size:.75rem;color:var(--text-2);margin-bottom:.5rem">' + c.contact_email + '</div>' +
+      '<div style="display:flex;align-items:center;gap:10px">' +
+        '<div style="font-size:1.5rem;font-weight:800;letter-spacing:.2em;color:var(--primary);font-family:monospace;background:#EEF2FF;padding:.5rem 1rem;border-radius:8px;flex:1;text-align:center">' + c.code + '</div>' +
+      '</div>' +
+      '<div style="font-size:.72rem;color:var(--text-2);margin-top:.5rem">Contact visits: <strong>/verify/' + requestUuid + '</strong></div>' +
+    '</div>';
+  }).join('');
+  overlay.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(15,23,42,.2)">' +
+    '<div style="text-align:center;margin-bottom:1.5rem">' +
+      '<div style="width:56px;height:56px;border-radius:50%;background:#F0FDF4;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem"><i class="fas fa-check-circle" style="color:var(--accent);font-size:1.5rem"></i></div>' +
+      '<h5 style="font-family:Playfair Display,serif;color:var(--text);margin-bottom:.25rem">Emergency Request Created</h5>' +
+      '<p style="color:var(--text-2);font-size:.875rem;margin:0">Share these verification codes with your trusted contacts</p>' +
+    '</div>' +
+    rows +
+    '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.875rem;margin-top:1rem;font-size:.78rem;color:#1E40AF">' +
+      '<i class="fas fa-info-circle me-2"></i>In production, codes are emailed automatically. Each contact visits /verify/' + requestUuid + ' and enters their code.' +
+    '</div>' +
+    '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="width:100%;margin-top:1rem;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border:none;border-radius:10px;padding:.875rem;font-weight:600;cursor:pointer">Got it</button>' +
+  '</div>';
+  document.body.appendChild(overlay);
+}
+
+</script></body></html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Audit Logs - Admin | Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<script>(function(){var u=localStorage.getItem('lv_user');if(!localStorage.getItem('lv_token')||!u){window.location.href='/login';return;}try{if(JSON.parse(u).role!=='admin'){window.location.href='/dashboard';}}catch(e){window.location.href='/login';}})()</script>
+<div id="sidebar-mount"></div>
+<div class="admin-main">
+  <div id="topbar-mount"></div>
+  <div class="admin-content">
+    <div class="admin-page-header">
+      <h1><i class="fas fa-clipboard-list me-2"></i>Audit Logs</h1>
+      <p>Complete system audit trail — every action by every user</p>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-3"><div class="admin-stat teal"><div class="admin-stat-icon" style="background:#F0FDF4;color:var(--aa)"><i class="fas fa-sign-in-alt"></i></div><div class="admin-stat-value" id="la-success">—</div><div class="admin-stat-label">Successful Logins (24h)</div></div></div>
+      <div class="col-md-3"><div class="admin-stat danger"><div class="admin-stat-icon" style="background:#FEF2F2;color:#e74c3c"><i class="fas fa-times-circle"></i></div><div class="admin-stat-value" id="la-failed">—</div><div class="admin-stat-label">Failed Logins (24h)</div></div></div>
+      <div class="col-md-3"><div class="admin-stat warning"><div class="admin-stat-icon" style="background:#FFFBEB;color:#f39c12"><i class="fas fa-exclamation-triangle"></i></div><div class="admin-stat-value" id="la-high">—</div><div class="admin-stat-label">High Risk Events</div></div></div>
+      <div class="col-md-3"><div class="admin-stat"><div class="admin-stat-icon" style="background:#EEF2FF;color:var(--ap)"><i class="fas fa-list"></i></div><div class="admin-stat-value" id="la-total">—</div><div class="admin-stat-label">Total Log Entries</div></div></div>
+    </div>
+
+    <div class="admin-card mb-4">
+      <div class="admin-card-body py-3">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-3">
+            <select id="risk-filter" class="admin-form-control" onchange="loadLogs(1)">
+              <option value="">All Risk Levels</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select id="limit-filter" class="admin-form-control" onchange="loadLogs(1)">
+              <option value="50">50 per page</option>
+              <option value="100">100 per page</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button onclick="loadLogs(1)" class="btn-admin btn-admin-green"><i class="fas fa-sync me-1"></i>Refresh</button>
+          </div>
+          <div class="col-md-3 text-end">
+            <span id="log-count" style="color:var(--at3);font-size:.875rem"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card mb-4">
+      <div class="admin-card-header"><h6><i class="fas fa-list me-2"></i>User Activity Logs</h6></div>
+      <div class="admin-card-body p-0">
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th>User</th><th>Action</th><th>Details</th><th>IP Address</th><th>Risk Level</th><th>Timestamp</th><th>Flag</th></tr></thead>
+            <tbody id="logs-tbody"><tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)"><i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div id="pagination" class="d-flex justify-content-center gap-2 mb-4"></div>
+
+    <div class="admin-card">
+      <div class="admin-card-header"><h6><i class="fas fa-sign-in-alt me-2"></i>Login Attempts (Recent 200)</h6></div>
+      <div class="admin-card-body p-0">
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th>Email</th><th>User Name</th><th>IP Address</th><th>Result</th><th>Time</th></tr></thead>
+            <tbody id="attempts-tbody"><tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--at3)"><i class="fas fa-spinner fa-spin me-2"></i>Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Flag Modal -->
+<div id="flag-modal" style="display:none" class="admin-modal-overlay">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <h5 class="admin-modal-title"><i class="fas fa-flag me-2" style="color:#f39c12"></i>Flag This Activity</h5>
+      <button onclick="document.getElementById('flag-modal').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--at3);font-size:1.2rem"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="hidden" id="flag-log-id">
+    <input type="hidden" id="flag-user-id">
+    <div class="mb-3">
+      <label style="font-size:.85rem;font-weight:600;color:var(--at2);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em">Severity</label>
+      <select id="flag-severity" class="admin-form-control">
+        <option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label style="font-size:.85rem;font-weight:600;color:var(--at2);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em">Reason *</label>
+      <textarea id="flag-reason" class="admin-form-control" rows="3" placeholder="Describe why this is suspicious..."></textarea>
+    </div>
+    <div class="d-flex gap-2">
+      <button onclick="document.getElementById('flag-modal').style.display='none'" class="btn-admin btn-admin-primary flex-fill" style="justify-content:center">Cancel</button>
+      <button onclick="submitFlag()" class="btn-admin btn-admin-danger flex-fill" style="justify-content:center"><i class="fas fa-flag me-2"></i>Flag It</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/admin.js"></script>
+<script>
+document.getElementById('sidebar-mount').innerHTML = ADMIN_SIDEBAR;
+document.getElementById('topbar-mount').innerHTML = ADMIN_TOPBAR('Audit Logs');
+initAdminNav();
+
+var riskBadge = function(r) { return ({low:'<span class="badge-low">Low</span>',medium:'<span class="badge-medium">Medium</span>',high:'<span class="badge-high">High</span>',critical:'<span class="badge-critical">Critical</span>'})[r] || '<span class="badge-low">Low</span>'; };
+
+async function loadLogs(page) {
+  page = page || 1;
+  var risk = document.getElementById('risk-filter').value;
+  var limit = document.getElementById('limit-filter').value;
+  var url = '/logs?page=' + page + '&limit=' + limit + (risk ? '&risk=' + risk : '');
+  var res = await AdminAPI.get(url);
+  if (!res || !res.success) return;
+  document.getElementById('log-count').textContent = res.total + ' total entries';
+  var logs = res.logs;
+  document.getElementById('logs-tbody').innerHTML = logs.length ? logs.map(function(l) {
+    return '<tr>' +
+      '<td><div style="font-weight:600;font-size:.8rem;color:var(--atext)">' + (l.full_name || 'System') + '</div><div style="font-size:.72rem;color:var(--at3)">' + (l.email || '') + '</div></td>' +
+      '<td style="font-size:.8rem;font-weight:500;color:var(--atext)">' + l.action.replace(/_/g,' ') + '</td>' +
+      '<td style="font-size:.78rem;color:var(--at3);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (l.details || '—') + '</td>' +
+      '<td style="font-size:.78rem;font-family:monospace;color:var(--at3)">' + (l.ip_address || '—') + '</td>' +
+      '<td>' + riskBadge(l.risk_level) + '</td>' +
+      '<td style="font-size:.78rem;color:var(--at3);white-space:nowrap">' + adminFormatDate(l.timestamp) + '</td>' +
+      '<td><button onclick="openFlagModal(' + l.id + ',' + (l.user_id || 'null') + ')" class="btn-admin btn-admin-danger btn-admin-sm"><i class="fas fa-flag"></i></button></td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--at3)">No logs found</td></tr>';
+
+  var pages = Math.ceil(res.total / parseInt(limit));
+  var pag = [];
+  for (var i = 1; i <= Math.min(pages, 10); i++) {
+    var active = i === page ? 'style="background:linear-gradient(135deg,#4F46E5,#8a6fd4);color:var(--admin-dark);border:none"' : 'style="background:var(--bg2);color:var(--atext);border:1px solid rgba(79,70,229,.2)"';
+    pag.push('<button onclick="loadLogs(' + i + ')" ' + active + ' style="width:36px;height:36px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.875rem">' + i + '</button>');
+  }
+  document.getElementById('pagination').innerHTML = pag.join('');
+}
+
+async function loadAttempts() {
+  var res = await AdminAPI.get('/login-attempts');
+  if (!res || !res.success) return;
+  var attempts = res.attempts;
+  document.getElementById('attempts-tbody').innerHTML = attempts.length ? attempts.map(function(a) {
+    var badge = a.success ? '<span class="badge-approved"><i class="fas fa-check me-1"></i>Success</span>' : '<span class="badge-denied"><i class="fas fa-times me-1"></i>Failed</span>';
+    return '<tr><td style="font-size:.8rem;color:var(--atext)">' + (a.email || '—') + '</td><td style="font-size:.8rem;color:var(--atext)">' + (a.full_name || '—') + '</td><td style="font-size:.78rem;font-family:monospace;color:var(--at3)">' + (a.ip_address || '—') + '</td><td>' + badge + '</td><td style="font-size:.78rem;color:var(--at3)">' + adminFormatDate(a.attempted_at) + '</td></tr>';
+  }).join('') : '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--at3)">No attempts recorded</td></tr>';
+
+  var failed = attempts.filter(function(a) { return !a.success; }).length;
+  var success = attempts.filter(function(a) { return a.success; }).length;
+  document.getElementById('la-failed').textContent = failed;
+  document.getElementById('la-success').textContent = success;
+  document.getElementById('la-total').textContent = attempts.length;
+}
+
+function openFlagModal(logId, userId) {
+  document.getElementById('flag-log-id').value = logId;
+  document.getElementById('flag-user-id').value = userId || '';
+  document.getElementById('flag-reason').value = '';
+  document.getElementById('flag-modal').style.display = 'flex';
+}
+
+async function submitFlag() {
+  var logId = document.getElementById('flag-log-id').value;
+  var userId = document.getElementById('flag-user-id').value;
+  var reason = document.getElementById('flag-reason').value.trim();
+  var severity = document.getElementById('flag-severity').value;
+  if (!reason) { AdminToast.warning('Please provide a reason'); return; }
+  var payload = { log_id: parseInt(logId), reason, severity };
+  if (userId) payload.user_id = parseInt(userId);
+  var res = await AdminAPI.post('/flag', payload);
+  if (res && res.success) { AdminToast.success('Activity flagged successfully'); document.getElementById('flag-modal').style.display='none'; }
+  else AdminToast.error('Failed to flag activity');
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+  AdminLoader.show();
+  await Promise.all([loadLogs(1), loadAttempts()]);
+  var statsRes = await AdminAPI.get('/stats');
+  if (statsRes && statsRes.success) document.getElementById('la-high').textContent = statsRes.stats.open_flags || 0;
+  AdminLoader.hide();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Verify Emergency Access — Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:1rem}
+.verify-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;width:100%;max-width:500px;box-shadow:var(--shadow-lg)}
+.code-input{font-size:2rem;font-weight:800;letter-spacing:.3em;text-align:center;font-family:monospace;border:2px solid var(--border);border-radius:12px;padding:.75rem;width:100%;background:var(--bg2);color:var(--text);transition:all .2s}
+.code-input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.12);background:var(--card)}
+.step-badge{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.8rem;flex-shrink:0}
+.info-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none}
+</style></head>
+<body>
+<div class="verify-card">
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <a href="/" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-3">
+      <img src="/img/logo.svg" height="36" alt="Legacy Vault">
+      <span style="font-family:'Playfair Display',serif;font-weight:800;color:var(--text);font-size:1.1rem">Legacy<span style="color:var(--primary)">Vault</span></span>
+    </a>
+    <div id="header-icon" style="width:64px;height:64px;border-radius:50%;background:#EEF2FF;display:flex;align-items:center;justify-content:center;margin:.875rem auto">
+      <i class="fas fa-key" style="color:var(--primary);font-size:1.5rem"></i>
+    </div>
+    <h3 style="font-family:'Playfair Display',serif;color:var(--text);font-size:1.5rem;margin-bottom:.25rem">Emergency Access Verification</h3>
+    <p style="color:var(--text-2);font-size:.875rem;margin:0">You have been asked to verify an emergency access request</p>
+  </div>
+
+  <!-- Loading state -->
+  <div id="state-loading" class="text-center py-4">
+    <div class="spinner-vault" style="margin:0 auto 1rem"></div>
+    <div style="color:var(--text-2);font-size:.875rem">Loading request details...</div>
+  </div>
+
+  <!-- Error state -->
+  <div id="state-error" style="display:none">
+    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:1.5rem;text-align:center">
+      <i class="fas fa-times-circle" style="color:var(--danger);font-size:2rem;display:block;margin-bottom:.75rem"></i>
+      <div style="font-weight:600;color:var(--danger);margin-bottom:.25rem">Request Not Found</div>
+      <div id="error-msg" style="font-size:.875rem;color:var(--text-2)">This request may have expired or already been resolved.</div>
+    </div>
+    <a href="/" class="btn-vault-primary w-100 mt-3" style="justify-content:center;padding:.875rem"><i class="fas fa-home"></i>Go to Legacy Vault</a>
+  </div>
+
+  <!-- Already resolved state -->
+  <div id="state-resolved" style="display:none">
+    <div id="resolved-box" style="border-radius:12px;padding:1.5rem;text-align:center;border:1px solid">
+      <i id="resolved-icon" class="fas fa-check-circle" style="font-size:2rem;display:block;margin-bottom:.75rem"></i>
+      <div id="resolved-title" style="font-weight:600;margin-bottom:.25rem"></div>
+      <div id="resolved-msg" style="font-size:.875rem;color:var(--text-2)"></div>
+    </div>
+    <a href="/" class="btn-vault-primary w-100 mt-3" style="justify-content:center;padding:.875rem"><i class="fas fa-home"></i>Go to Legacy Vault</a>
+  </div>
+
+  <!-- Verify form state -->
+  <div id="state-form" style="display:none">
+    <!-- Request info -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:.75rem">Request Details</div>
+      <div class="info-row"><span style="font-size:.82rem;color:var(--text-2)">Vault Owner</span><span id="req-owner" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+      <div class="info-row"><span style="font-size:.82rem;color:var(--text-2)">Request Type</span><span id="req-type" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+      <div class="info-row"><span style="font-size:.82rem;color:var(--text-2)">Approvals Needed</span><span id="req-approvals" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+      <div class="info-row"><span style="font-size:.82rem;color:var(--text-2)">Expires</span><span id="req-expires" style="font-size:.875rem;font-weight:600;color:var(--text)">—</span></div>
+    </div>
+
+    <!-- Alert -->
+    <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.875rem;margin-bottom:1.5rem;display:flex;gap:10px">
+      <i class="fas fa-exclamation-triangle" style="color:#92400E;flex-shrink:0;margin-top:.1rem"></i>
+      <div style="font-size:.8rem;color:#92400E;line-height:1.6">You are being asked to grant emergency access to this person's vault. Only approve if you are certain this is a genuine emergency. Your decision is final and logged.</div>
+    </div>
+
+    <!-- Form -->
+    <form id="verify-form" class="form-vault" novalidate>
+      <div class="mb-3">
+        <label class="form-label">Your Contact ID</label>
+        <input type="number" id="contact-id" class="form-control" placeholder="Enter your contact ID" required>
+        <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem">Your contact ID was provided when you were added as a trusted contact</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Verification Code</label>
+        <input type="text" id="verify-code" class="code-input" placeholder="000000" maxlength="6" required oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem">Enter the 6-digit code you received</div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Comment (optional)</label>
+        <textarea id="verify-comment" class="form-control" rows="2" placeholder="Add a note about your decision..."></textarea>
+      </div>
+      <div id="verify-alert" style="display:none" class="mb-3"></div>
+      <div class="row g-3">
+        <div class="col-6">
+          <button type="button" id="deny-btn" onclick="submitDecision('denied')" class="btn-vault-danger w-100" style="justify-content:center;padding:.875rem;font-size:.95rem">
+            <i class="fas fa-times-circle"></i>Deny Access
+          </button>
+        </div>
+        <div class="col-6">
+          <button type="button" id="approve-btn" onclick="submitDecision('approved')" class="btn-vault-accent w-100" style="justify-content:center;padding:.875rem;font-size:.95rem">
+            <i class="fas fa-check-circle"></i>Approve Access
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- How it works -->
+    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:.875rem">How This Works</div>
+      <div class="d-flex flex-column gap-2">
+        <div style="display:flex;align-items:flex-start;gap:10px"><div class="step-badge">1</div><div style="font-size:.78rem;color:var(--text-2);line-height:1.55">Enter your contact ID and the 6-digit code you received</div></div>
+        <div style="display:flex;align-items:flex-start;gap:10px"><div class="step-badge">2</div><div style="font-size:.78rem;color:var(--text-2);line-height:1.55">Choose to Approve or Deny the emergency access request</div></div>
+        <div style="display:flex;align-items:flex-start;gap:10px"><div class="step-badge">3</div><div style="font-size:.78rem;color:var(--text-2);line-height:1.55">Access is granted only when 2 out of 3 trusted contacts approve</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+// Get request UUID from URL: /verify/UUID
+var requestUuid = window.location.pathname.split('/verify/')[1];
+if (!requestUuid) {
+  showState('error');
+  document.getElementById('error-msg').textContent = 'No request ID found in URL.';
+}
+
+function showState(state) {
+  ['loading','error','resolved','form'].forEach(function(s){
+    document.getElementById('state-' + s).style.display = s === state ? 'block' : 'none';
+  });
+}
+
+function formatExpiry(dateStr) {
+  if (!dateStr) return 'Unknown';
+  var d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+// Load request details
+async function loadRequest() {
+  if (!requestUuid) return;
+  try {
+    var res = await fetch('/api/emergency/request/' + requestUuid);
+    var data = await res.json();
+    if (!data.success) {
+      showState('error');
+      document.getElementById('error-msg').textContent = data.message || 'Request not found or expired.';
+      return;
+    }
+    var req = data.request;
+    // Check if already resolved
+    if (req.status === 'approved') {
+      showState('resolved');
+      var box = document.getElementById('resolved-box');
+      box.style.background = '#F0FDF4'; box.style.borderColor = '#BBF7D0';
+      document.getElementById('resolved-icon').style.color = '#22C55E';
+      document.getElementById('resolved-title').textContent = 'Access Already Approved';
+      document.getElementById('resolved-title').style.color = '#166534';
+      document.getElementById('resolved-msg').textContent = 'This emergency access request has already been approved. The vault owner\'s documents are accessible to approved contacts.';
+      return;
+    }
+    if (req.status === 'denied') {
+      showState('resolved');
+      var box = document.getElementById('resolved-box');
+      box.style.background = '#FEF2F2'; box.style.borderColor = '#FECACA';
+      document.getElementById('resolved-icon').className = 'fas fa-times-circle';
+      document.getElementById('resolved-icon').style.color = '#EF4444';
+      document.getElementById('resolved-title').textContent = 'Access Request Denied';
+      document.getElementById('resolved-title').style.color = '#991B1B';
+      document.getElementById('resolved-msg').textContent = 'This emergency access request has been denied.';
+      return;
+    }
+    if (req.status === 'expired' || new Date(req.expires_at) < new Date()) {
+      showState('error');
+      document.getElementById('error-msg').textContent = 'This request has expired. Please contact the vault owner to create a new request.';
+      return;
+    }
+    // Show form
+    document.getElementById('req-owner').textContent = req.vault_owner || 'Unknown';
+    document.getElementById('req-type').textContent = (req.request_type || 'emergency').toUpperCase();
+    document.getElementById('req-approvals').textContent = (req.approvals_count || 0) + ' of ' + req.approvals_required + ' received';
+    document.getElementById('req-expires').textContent = formatExpiry(req.expires_at);
+    showState('form');
+  } catch (err) {
+    showState('error');
+    document.getElementById('error-msg').textContent = 'Network error. Please check your connection and try again.';
+  }
+}
+
+async function submitDecision(decision) {
+  var contactId = document.getElementById('contact-id').value.trim();
+  var code = document.getElementById('verify-code').value.trim();
+  var comment = document.getElementById('verify-comment').value.trim();
+  var alertEl = document.getElementById('verify-alert');
+
+  if (!contactId) {
+    alertEl.style.display = 'block';
+    alertEl.innerHTML = '<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>Please enter your contact ID.</div>';
+    return;
+  }
+  if (!code || code.length !== 6) {
+    alertEl.style.display = 'block';
+    alertEl.innerHTML = '<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>Please enter your 6-digit verification code.</div>';
+    return;
+  }
+
+  var approveBtn = document.getElementById('approve-btn');
+  var denyBtn = document.getElementById('deny-btn');
+  approveBtn.disabled = true; denyBtn.disabled = true;
+  alertEl.style.display = 'none';
+
+  if (decision === 'approved') {
+    approveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Approving...';
+  } else {
+    denyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Denying...';
+  }
+
+  try {
+    var res = await fetch('/api/emergency/respond/' + requestUuid, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        decision: decision,
+        contact_id: parseInt(contactId),
+        code: code,
+        comment: comment || undefined
+      })
+    });
+    var data = await res.json();
+
+    approveBtn.disabled = false; denyBtn.disabled = false;
+    approveBtn.innerHTML = '<i class="fas fa-check-circle"></i>Approve Access';
+    denyBtn.innerHTML = '<i class="fas fa-times-circle"></i>Deny Access';
+
+    if (data.success) {
+      showState('resolved');
+      var box = document.getElementById('resolved-box');
+      if (decision === 'approved') {
+        box.style.background = '#F0FDF4'; box.style.borderColor = '#BBF7D0';
+        document.getElementById('resolved-icon').style.color = '#22C55E';
+        document.getElementById('resolved-title').textContent = data.access_granted ? 'Access GRANTED' : 'Approval Recorded';
+        document.getElementById('resolved-title').style.color = '#166534';
+        document.getElementById('resolved-msg').textContent = data.message;
+      } else {
+        box.style.background = '#FEF2F2'; box.style.borderColor = '#FECACA';
+        document.getElementById('resolved-icon').className = 'fas fa-times-circle';
+        document.getElementById('resolved-icon').style.color = '#EF4444';
+        document.getElementById('resolved-title').textContent = 'Access Denied';
+        document.getElementById('resolved-title').style.color = '#991B1B';
+        document.getElementById('resolved-msg').textContent = data.message;
+      }
+    } else {
+      alertEl.style.display = 'block';
+      alertEl.innerHTML = '<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>' + (data.message || 'Verification failed. Please check your code and try again.') + '</div>';
+    }
+  } catch (err) {
+    approveBtn.disabled = false; denyBtn.disabled = false;
+    approveBtn.innerHTML = '<i class="fas fa-check-circle"></i>Approve Access';
+    denyBtn.innerHTML = '<i class="fas fa-times-circle"></i>Deny Access';
+    alertEl.style.display = 'block';
+    alertEl.innerHTML = '<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>Network error. Please try again.</div>';
+  }
+}
+
+// Load on page ready
+document.addEventListener('DOMContentLoaded', loadRequest);
+</script>
+</body></html>

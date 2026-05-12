@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Document Vault — Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+<style>
+.doc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem;transition:all .25s}
+.doc-card:hover{border-color:rgba(79,70,229,.4);background:var(--bg2);transform:translateY(-3px);box-shadow:0 12px 32px rgba(2,7,16,.5)}
+.filter-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:.3rem .875rem;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s}
+.filter-btn.active,.filter-btn:hover{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border-color:transparent}
+.upload-zone{border:2px dashed rgba(79,70,229,.3);border-radius:14px;padding:2.5rem;text-align:center;cursor:pointer;transition:all .3s;background:rgba(79,70,229,.03)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--primary);background:rgba(79,70,229,.07)}
+.modal-vault{display:none;position:fixed;inset:0;background:rgba(2,7,16,.8);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-vault.show{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:2rem;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(2,7,16,.8)}
+</style></head>
+<body>
+<script>if(!localStorage.getItem('lv_token')){window.location.href='/login';}</script>
+<div id="sidebar" class="sidebar"><div class="sidebar-logo"><a href="/dashboard" class="d-flex align-items-center gap-2 text-decoration-none"><img src="/img/logo.svg" height="34" alt="LV"><span class="brand-text" style="font-size:1rem">Legacy<span>Vault</span></span></a></div><nav class="sidebar-nav"><div class="sidebar-section-title">Main</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li><li class="nav-item"><a class="nav-link" href="/vault"><i class="fas fa-folder-open"></i>Document Vault</a></li><li class="nav-item"><a class="nav-link" href="/contacts"><i class="fas fa-users"></i>Trusted Contacts</a></li></ul><div class="sidebar-section-title">Security</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/security"><i class="fas fa-shield-alt"></i>Security Settings</a></li><li class="nav-item"><a class="nav-link" href="/activity"><i class="fas fa-chart-line"></i>Activity Monitor</a></li></ul><div class="sidebar-section-title">Access</div><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/emergency"><i class="fas fa-exclamation-triangle"></i>Emergency Access</a></li><li class="nav-item"><a class="nav-link" href="/profile"><i class="fas fa-user-circle"></i>Profile</a></li></ul><div style="padding:1rem 1.5rem;margin-top:auto;border-top:1px solid var(--border)"><a href="#" class="nav-link logout-btn" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i>Logout</a></div></nav></div>
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+<nav class="navbar-vault navbar px-3" style="position:sticky;top:0;z-index:100"><button id="sidebar-toggle" class="btn btn-sm me-3" style="background:var(--bg2);border:1px solid var(--border);color:var(--text-2)"><i class="fas fa-bars"></i></button><span class="brand-text d-lg-none" style="font-size:.95rem">Legacy<span>Vault</span></span><div class="ms-auto d-flex align-items-center gap-3"><button class="theme-toggle" title="Switch to Dark Mode"><i class="fas fa-moon"></i></button><div class="dropdown"><button class="btn d-flex align-items-center gap-2" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:.4rem .75rem" data-bs-toggle="dropdown"><div class="user-avatar-display" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff">U</div><span class="user-name-display d-none d-md-inline" style="font-size:.875rem;font-weight:500">User</span><i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.6"></i></button><ul class="dropdown-menu dropdown-menu-end" style="border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg)"><li><a class="dropdown-item" href="/profile" style="font-size:.875rem"><i class="fas fa-user me-2" style="color:var(--primary)"></i>Profile</a></li><li><a class="dropdown-item" href="/security" style="font-size:.875rem"><i class="fas fa-shield-alt me-2" style="color:var(--primary)"></i>Security</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item logout-btn" href="#" style="color:var(--danger);font-size:.875rem"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li></ul></div></div></nav>
+<div class="main-content" id="main-content"><div class="container-fluid px-4 py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div><h4 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Document Vault</h4><p style="color:var(--text-2);font-size:.82rem;margin:0">All files encrypted with AES-256-CBC</p></div>
+    <button onclick="openUploadModal()" class="btn-vault-primary" style="padding:.5rem 1.25rem;font-size:.82rem"><i class="fas fa-plus"></i>Upload Document</button>
+  </div>
+  <div class="card-vault mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <div style="flex:1;min-width:180px;position:relative"><i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-2);font-size:.82rem"></i><input type="text" id="search-input" placeholder="Search documents..." class="form-vault" style="padding:.55rem .875rem .55rem 2.25rem;border-radius:9px;border:1.5px solid var(--border);background:var(--card);color:var(--text);width:100%;font-size:.875rem" oninput="filterDocs()"></div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('will',this)">Will</button>
+        <button class="filter-btn" onclick="setFilter('property',this)">Property</button>
+        <button class="filter-btn" onclick="setFilter('financial',this)">Financial</button>
+        <button class="filter-btn" onclick="setFilter('insurance',this)">Insurance</button>
+        <button class="filter-btn" onclick="setFilter('personal',this)">Personal</button>
+        <button class="filter-btn" onclick="setFilter('other',this)">Other</button>
+      </div>
+      <div id="doc-count-label" style="color:var(--text-2);font-size:.78rem;white-space:nowrap"></div>
+    </div>
+  </div>
+  <div id="docs-grid" class="row g-3"><div class="col-12 text-center py-5"><div class="spinner-vault" style="margin:0 auto"></div></div></div>
+</div></div>
+
+<!-- Upload Modal -->
+<div class="modal-vault" id="upload-modal">
+  <div class="modal-box">
+    <div class="d-flex align-items-center justify-content-between mb-4"><h5 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Upload Document</h5><button onclick="closeUploadModal()" style="background:none;border:none;color:var(--text-2);font-size:1.2rem;cursor:pointer"><i class="fas fa-times"></i></button></div>
+    <div id="upload-alert" style="display:none" class="mb-3"></div>
+    <form id="upload-form" class="form-vault" novalidate>
+      <div class="mb-3"><label class="form-label">Title <span style="color:var(--danger)">*</span></label><input type="text" id="doc-title" class="form-control" placeholder="e.g. Last Will and Testament" required></div>
+      <div class="mb-3"><label class="form-label">Category</label><select id="doc-category" class="form-select"><option value="other">Other</option><option value="will">Will / Testament</option><option value="property">Property</option><option value="financial">Financial</option><option value="insurance">Insurance</option><option value="personal">Personal</option></select></div>
+      <div class="mb-3"><label class="form-label">Description</label><textarea id="doc-desc" class="form-control" rows="2" placeholder="Optional description..."></textarea></div>
+
+      <!-- Document PIN Protection -->
+      <div class="mb-3">
+        <label class="form-label">Document PIN <span style="color:var(--text-3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" id="doc-password" class="form-control" placeholder="Set a PIN for extra security (4-50 chars)"></div>
+        <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem"><i class="fas fa-info-circle me-1" style="color:var(--primary)"></i>If set, trusted contacts must enter this PIN to access the document</div>
+      </div>
+
+      <!-- Assign to Trusted Contact -->
+      <div class="mb-3">
+        <label class="form-label">Assign to Trusted Contact <span style="color:var(--text-3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <div class="form-check mb-2" style="padding:.75rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)">
+          <input class="form-check-input" type="checkbox" id="assign-contact-check" onchange="toggleContactAssign(this.checked)">
+          <label class="form-check-label" for="assign-contact-check" style="font-size:.82rem;color:var(--text)">
+            <i class="fas fa-user-tag me-2" style="color:var(--primary)"></i>Assign this document to a specific trusted contact
+          </label>
+        </div>
+        <div id="contact-assign-section" style="display:none">
+          <select id="doc-contact" class="form-select mb-2">
+            <option value="">Loading contacts...</option>
+          </select>
+          <textarea id="doc-access-note" class="form-control" rows="2" placeholder="Optional note for the contact (e.g. 'This is my primary will')"></textarea>
+          <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem"><i class="fas fa-exclamation-triangle me-1" style="color:var(--warning)"></i>This contact will ONLY see this document, not others</div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">File <span style="color:var(--danger)">*</span></label>
+        <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--primary);margin-bottom:.75rem;display:block"></i>
+          <div style="font-weight:600;color:var(--text);font-size:.875rem">Click to browse or drag &amp; drop</div>
+          <div style="color:var(--text-2);font-size:.78rem;margin-top:.25rem">PDF, DOC, DOCX, TXT, JPG, PNG, XLSX (max 10MB)</div>
+          <div id="file-name" style="margin-top:.75rem;font-size:.82rem;color:var(--accent);font-weight:600"></div>
+        </div>
+        <input type="file" id="file-input" style="display:none" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.xlsx,.xls" onchange="handleFileSelect(this)">
+      </div>
+      <div style="background:rgba(79,70,229,.07);border-radius:10px;padding:.875rem;margin-bottom:1.25rem;border:1px solid #C7D2FE"><div style="font-size:.78rem;color:var(--text);font-weight:600;margin-bottom:.2rem"><i class="fas fa-lock me-2" style="color:var(--primary)"></i>AES-256-CBC Encryption</div><div style="font-size:.72rem;color:var(--text-2)">Your file will be encrypted before storage. Only you can decrypt it.</div></div>
+      <div class="d-flex gap-2">
+        <button type="button" onclick="closeUploadModal()" class="btn-vault-secondary flex-fill" style="justify-content:center;padding:.75rem">Cancel</button>
+        <button type="submit" id="upload-btn" class="btn-vault-primary flex-fill" style="justify-content:center;padding:.75rem"><i class="fas fa-upload"></i>Encrypt &amp; Upload</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Edit Modal -->
+<div class="modal-vault" id="edit-modal">
+  <div class="modal-box">
+    <div class="d-flex align-items-center justify-content-between mb-4"><h5 style="font-family:'Playfair Display',serif;color:var(--text);margin:0">Edit Document</h5><button onclick="closeEditModal()" style="background:none;border:none;color:var(--text-2);font-size:1.2rem;cursor:pointer"><i class="fas fa-times"></i></button></div>
+    <form id="edit-form" class="form-vault">
+      <input type="hidden" id="edit-uuid">
+      <div class="mb-3"><label class="form-label">Title</label><input type="text" id="edit-title" class="form-control"></div>
+      <div class="mb-3"><label class="form-label">Category</label><select id="edit-category" class="form-select"><option value="other">Other</option><option value="will">Will</option><option value="property">Property</option><option value="financial">Financial</option><option value="insurance">Insurance</option><option value="personal">Personal</option></select></div>
+      <div class="mb-4"><label class="form-label">Description</label><textarea id="edit-desc" class="form-control" rows="2"></textarea></div>
+      <div class="d-flex gap-2">
+        <button type="button" onclick="closeEditModal()" class="btn-vault-secondary flex-fill" style="justify-content:center;padding:.75rem">Cancel</button>
+        <button type="submit" class="btn-vault-primary flex-fill" style="justify-content:center;padding:.75rem"><i class="fas fa-save"></i>Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+let allDocs=[],currentFilter='all';
+document.addEventListener('DOMContentLoaded',async function(){
+  initSidebar();initUserInfo();
+  document.querySelectorAll('.logout-btn').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();logout();}));
+  document.querySelectorAll('.sidebar-nav .nav-link').forEach(l=>{if(l.getAttribute('href')===window.location.pathname)l.classList.add('active');});
+  var dz=document.getElementById('drop-zone');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0]){var dt=new DataTransfer();dt.items.add(e.dataTransfer.files[0]);document.getElementById('file-input').files=dt.files;handleFileSelect(document.getElementById('file-input'));}});
+  document.getElementById('upload-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var file=document.getElementById('file-input').files[0];
+    if(!file){LV.Toast.error('Please select a file');return;}
+    var title=document.getElementById('doc-title').value.trim();
+    if(!title){LV.Toast.error('Title is required');return;}
+    var btn=document.getElementById('upload-btn');
+    btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Encrypting...';
+    var fd=new FormData();
+    fd.append('document',file);
+    fd.append('title',title);
+    fd.append('category',document.getElementById('doc-category').value);
+    fd.append('description',document.getElementById('doc-desc').value);
+    var docPin=document.getElementById('doc-password').value.trim();
+    if(docPin) fd.append('document_password',docPin);
+    var assignCheck=document.getElementById('assign-contact-check').checked;
+    var contactId=document.getElementById('doc-contact').value;
+    if(assignCheck && contactId){
+      fd.append('assigned_contact_id',contactId);
+      fd.append('inheritance_type','specific');
+      var note=document.getElementById('doc-access-note').value.trim();
+      if(note) fd.append('access_note',note);
+    } else {
+      fd.append('inheritance_type','general');
+    }
+    var res=await LV.API.upload('/documents/upload',fd);
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-upload me-2"></i>Encrypt &amp; Upload';
+    if(res&&res.success){
+      var msg='Document encrypted and uploaded!';
+      if(res.document&&res.document.assigned_contact_id) msg+=' Assigned to trusted contact.';
+      if(res.document&&res.document.is_password_protected) msg+=' PIN protection active.';
+      LV.Toast.success(msg);closeUploadModal();await loadDocs();
+    }
+    else{var al=document.getElementById('upload-alert');al.style.display='block';al.innerHTML='<div class="alert-vault alert-vault-danger"><i class="fas fa-exclamation-circle"></i>'+(res?res.message:'Upload failed')+'</div>';}
+  });
+  document.getElementById('edit-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var uuid=document.getElementById('edit-uuid').value;
+    var res=await LV.API.put('/documents/'+uuid,{title:document.getElementById('edit-title').value,category:document.getElementById('edit-category').value,description:document.getElementById('edit-desc').value});
+    if(res&&res.success){LV.Toast.success('Document updated!');closeEditModal();await loadDocs();}
+    else LV.Toast.error(res?res.message:'Update failed');
+  });
+  await loadDocs();
+});
+async function loadDocs(){var res=await LV.API.get('/documents');if(res&&res.success){allDocs=res.documents;filterDocs();}else document.getElementById('docs-grid').innerHTML='<div class="col-12 text-center py-5" style="color:var(--text-2)">Failed to load documents</div>';}
+function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');filterDocs();}
+function filterDocs(){
+  var q=document.getElementById('search-input').value.toLowerCase();
+  var filtered=allDocs.filter(d=>(currentFilter==='all'||d.category===currentFilter)&&(!q||d.title.toLowerCase().includes(q)||(d.description||'').toLowerCase().includes(q)));
+  document.getElementById('doc-count-label').textContent=filtered.length+' document'+(filtered.length!==1?'s':'');
+  var grid=document.getElementById('docs-grid');
+  if(!filtered.length){grid.innerHTML='<div class="col-12 text-center py-5"><i class="fas fa-folder-open" style="font-size:3rem;color:var(--text-2);display:block;margin-bottom:1rem"></i><div style="color:var(--text-2);font-size:.95rem">No documents found</div><button onclick="openUploadModal()" class="btn-vault-primary mt-3" style="padding:.5rem 1.25rem;font-size:.82rem"><i class="fas fa-plus"></i>Upload First Document</button></div>';return;}
+  grid.innerHTML=filtered.map(d=>`<div class="col-sm-6 col-lg-4 col-xl-3"><div class="doc-card"><div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.875rem"><div style="width:46px;height:46px;border-radius:12px;background:#EEF2FF;display:flex;align-items:center;justify-content:center"><i class="fas ${LV.getCategoryIcon(d.category)}" style="color:var(--primary);font-size:1.1rem"></i></div><div class="dropdown"><button class="btn btn-sm" style="background:none;border:none;color:var(--text-2);padding:.25rem .5rem" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button><ul class="dropdown-menu dropdown-menu-end" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;font-size:.82rem"><li><a class="dropdown-item" href="#" style="color:var(--text)" onclick="downloadDoc('${d.uuid}','${d.file_name}');return false"><i class="fas fa-download me-2" style="color:var(--primary)"></i>Download</a></li><li><a class="dropdown-item" href="#" style="color:var(--text)" onclick="openEditModal(${JSON.stringify(d).replace(/"/g,'&quot;')});return false"><i class="fas fa-edit me-2" style="color:var(--primary)"></i>Edit</a></li><li><hr class="dropdown-divider" style="border-color:var(--border)"></li><li><a class="dropdown-item" href="#" style="color:var(--danger)" onclick="deleteDoc('${d.uuid}');return false"><i class="fas fa-trash me-2"></i>Delete</a></li></ul></div></div><div style="font-size:.875rem;font-weight:700;color:var(--text);margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${d.title}">${d.title}</div><div style="font-size:.72rem;color:var(--text-2);margin-bottom:.75rem">${d.file_name}</div><div class="d-flex align-items-center justify-content-between"><span style="font-size:.72rem;background:#EEF2FF;color:var(--primary);padding:.2rem .6rem;border-radius:6px;font-weight:600;text-transform:capitalize">${d.category}</span><span style="font-size:.68rem;color:var(--text-2)">${LV.formatFileSize(d.file_size)}</span></div><div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(79,70,229,.08);display:flex;align-items:center;justify-content:space-between"><span style="font-size:.68rem;color:var(--text-2)">${LV.formatDate(d.created_at)}</span><span style="font-size:.68rem;color:var(--accent);font-weight:600"><i class="fas fa-lock me-1"></i>Encrypted</span>${d.is_password_protected?'<span style="font-size:.68rem;color:var(--primary);font-weight:600;margin-left:.5rem"><i class="fas fa-key me-1"></i>PIN</span>':''}</div>${d.assigned_contact_name?'<div style="margin-top:.5rem;font-size:.7rem;color:var(--primary);background:#EEF2FF;padding:.2rem .5rem;border-radius:6px;display:inline-block"><i class="fas fa-user-tag me-1"></i>'+d.assigned_contact_name+'</div>':''}</div></div></div>`).join('');
+}
+function handleFileSelect(input){var f=input.files[0];if(f)document.getElementById('file-name').textContent=f.name+' ('+LV.formatFileSize(f.size)+')';}
+async function openUploadModal(){
+  document.getElementById('upload-modal').classList.add('show');
+  document.getElementById('upload-form').reset();
+  document.getElementById('file-name').textContent='';
+  document.getElementById('upload-alert').style.display='none';
+  document.getElementById('contact-assign-section').style.display='none';
+  document.getElementById('assign-contact-check').checked=false;
+  // Load contacts for assignment
+  var res = await LV.API.get('/contacts');
+  var sel = document.getElementById('doc-contact');
+  if(res && res.success && res.contacts.length) {
+    sel.innerHTML = '<option value="">Select a trusted contact...</option>' +
+      res.contacts.map(function(c){ return '<option value="'+c.id+'">'+c.name+' ('+c.email+')</option>'; }).join('');
+  } else {
+    sel.innerHTML = '<option value="">No trusted contacts found — add contacts first</option>';
+  }
+}
+function toggleContactAssign(show){
+  document.getElementById('contact-assign-section').style.display = show ? 'block' : 'none';
+}
+function closeUploadModal(){document.getElementById('upload-modal').classList.remove('show');}
+function openEditModal(d){document.getElementById('edit-modal').classList.add('show');document.getElementById('edit-uuid').value=d.uuid;document.getElementById('edit-title').value=d.title;document.getElementById('edit-category').value=d.category;document.getElementById('edit-desc').value=d.description||'';}
+function closeEditModal(){document.getElementById('edit-modal').classList.remove('show');}
+async function downloadDoc(uuid,fname){LV.Toast.info('Decrypting and downloading...');var token=LV.Auth.getToken();var res=await fetch('/api/documents/'+uuid+'/download',{headers:{Authorization:'Bearer '+token}});if(res.ok){var blob=await res.blob();var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);LV.Toast.success('Downloaded!');}else LV.Toast.error('Download failed');}
+async function deleteDoc(uuid){LV.confirm('Are you sure you want to delete this document? This cannot be undone.',async function(){var res=await LV.API.delete('/documents/'+uuid);if(res&&res.success){LV.Toast.success('Document deleted');await loadDocs();}else LV.Toast.error(res?res.message:'Delete failed');});}
+</script></body></html>

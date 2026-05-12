@@ -1,0 +1,1581 @@
+
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Dashboard — Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="/admin/admin.css" rel="stylesheet">
+<style>
+:root{--p:#4F46E5;--s:#6366F1;--a:#22C55E;--ad:#16A34A;--bg:#F8FAFC;--bg2:#F1F5F9;--card:#fff;--txt:#0F172A;--t2:#475569;--t3:#94A3B8;--bdr:#E2E8F0;--danger:#EF4444;--warn:#F59E0B;--info:#3B82F6;--sh:0 1px 3px rgba(15,23,42,.08);--sh2:0 4px 6px rgba(15,23,42,.07);--sh3:0 10px 25px rgba(15,23,42,.1);--r:12px;--transition:all .2s ease}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-font-smoothing:antialiased}
+body.dark{--bg:#0F172A;--bg2:#1E293B;--card:#1E293B;--txt:#F1F5F9;--t2:#94A3B8;--t3:#64748B;--bdr:#334155;--p:#818CF8;--s:#A5B4FC;--a:#4ADE80;--ad:#22C55E}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+/* LAYOUT */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-height:100vh;background:var(--card);border-right:1px solid var(--bdr);position:fixed;left:0;top:0;z-index:200;display:flex;flex-direction:column;box-shadow:var(--sh2);transition:transform .3s}
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+/* SIDEBAR */
+.sb-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
+.sb-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--s));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.95rem;box-shadow:0 2px 8px rgba(79,70,229,.3);flex-shrink:0}
+.sb-brand{font-family:"Playfair Display",serif;font-weight:800;color:var(--txt);font-size:1rem;line-height:1.2}
+.sb-brand span{color:var(--p)}
+.sb-sub{font-size:.62rem;color:var(--t3);font-weight:500;letter-spacing:1.5px;text-transform:uppercase}
+.sb-section{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);padding:.875rem 1.5rem .3rem}
+.sb-link{display:flex;align-items:center;gap:10px;padding:.6rem 1.5rem;color:var(--t2);font-size:.875rem;font-weight:500;text-decoration:none;border-left:3px solid transparent;transition:var(--transition);cursor:pointer;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left}
+.sb-link i{width:18px;text-align:center;color:var(--t3);font-size:.9rem;transition:color .2s}
+.sb-link:hover,.sb-link:focus{color:var(--p);background:#EEF2FF;outline:none}
+.sb-link:hover i{color:var(--p)}
+.sb-link.active{color:var(--p);background:#EEF2FF;border-left-color:var(--p);font-weight:600}
+.sb-link.active i{color:var(--p)}
+.sb-link.logout{color:var(--danger)}
+.sb-link.logout i{color:var(--danger)}
+.sb-link.logout:hover{background:#FEF2F2}
+body.dark .sb-link:hover,body.dark .sb-link.active{background:rgba(129,140,248,.1)}
+.sb-footer{padding:1rem 1.5rem;border-top:1px solid var(--bdr);margin-top:auto}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:199}
+.sb-overlay.show{display:block}
+/* TOPBAR */
+.topbar{background:var(--card);border-bottom:1px solid var(--bdr);padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
+.topbar-left{display:flex;align-items:center;gap:.875rem}
+.topbar-title{font-size:1.05rem;font-weight:700;color:var(--txt)}
+.topbar-right{display:flex;align-items:center;gap:.875rem}
+.theme-btn{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:1px solid var(--bdr);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);font-size:.9rem}
+.theme-btn:hover{background:#EEF2FF;color:var(--p)}
+body.dark .theme-btn:hover{background:rgba(129,140,248,.1)}
+.admin-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--s));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.875rem;cursor:pointer;flex-shrink:0}
+.admin-name{font-size:.82rem;font-weight:600;color:var(--txt);line-height:1.2}
+.admin-role{font-size:.72rem;color:var(--t3)}
+.menu-btn{width:36px;height:36px;border-radius:8px;background:var(--bg2);border:1px solid var(--bdr);color:var(--t2);display:none;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem}
+@media(max-width:992px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.menu-btn{display:flex}}
+/* CONTENT */
+.content{padding:2rem;flex:1}
+/* PAGE HEADER */
+.page-header{background:linear-gradient(135deg,var(--p),var(--s));border-radius:var(--r);padding:1.75rem 2rem;margin-bottom:2rem;color:#fff;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(79,70,229,.3)}
+.page-header::before{content:"";position:absolute;top:-50%;right:-5%;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);border-radius:50%}
+.page-header h1{font-family:"Playfair Display",serif;font-size:1.6rem;margin:0 0 .25rem;color:#fff}
+.page-header p{color:rgba(255,255,255,.75);font-size:.875rem;margin:0}
+/* STAT CARDS */
+.stat-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:1.5rem;box-shadow:var(--sh);transition:var(--transition);position:relative;overflow:hidden}
+.stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.primary::before{background:linear-gradient(90deg,var(--p),var(--s))}
+.stat-card.success::before{background:linear-gradient(90deg,var(--a),var(--ad))}
+.stat-card.danger::before{background:linear-gradient(90deg,var(--danger),#DC2626)}
+.stat-card.warning::before{background:linear-gradient(90deg,var(--warn),#D97706)}
+.stat-card.info::before{background:linear-gradient(90deg,var(--info),#2563EB)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--sh3)}
+.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:1rem}
+.stat-val{font-size:2rem;font-weight:800;color:var(--txt);font-family:Inter,sans-serif;line-height:1}
+.stat-lbl{font-size:.75rem;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:.25rem}
+/* SECTION CARDS */
+.section-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:1.5rem}
+.section-header{padding:1rem 1.5rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
+.section-header h6{margin:0;font-weight:700;font-size:.9rem;color:var(--txt);display:flex;align-items:center;gap:8px}
+.section-header h6 i{color:var(--p)}
+.section-body{padding:0}
+/* TABLES */
+.data-table{width:100%;border-collapse:separate;border-spacing:0}
+.data-table thead th{background:var(--bg2);color:var(--t2);padding:.75rem 1rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--bdr);white-space:nowrap}
+.data-table tbody tr{border-bottom:1px solid var(--bdr);transition:background .15s}
+.data-table tbody tr:last-child{border-bottom:none}
+.data-table tbody tr:hover{background:#F8FAFF}
+body.dark .data-table tbody tr:hover{background:rgba(129,140,248,.05)}
+.data-table tbody td{padding:.875rem 1rem;font-size:.875rem;color:var(--txt);vertical-align:middle}
+/* BADGES */
+.badge{padding:.25rem .75rem;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.b-active{background:#F0FDF4;color:#166534}
+.b-inactive{background:#FEF2F2;color:#991B1B}
+.b-success{background:#F0FDF4;color:#166534}
+.b-failed{background:#FEF2F2;color:#991B1B}
+.b-warning{background:#FFFBEB;color:#92400E}
+.b-pending{background:#EFF6FF;color:#1E40AF}
+.b-approved{background:#F0FDF4;color:#166534}
+.b-denied{background:#FEF2F2;color:#991B1B}
+.b-info{background:#EFF6FF;color:#1E40AF}
+body.dark .b-active{background:rgba(74,222,128,.12);color:#4ADE80}
+body.dark .b-inactive{background:rgba(239,68,68,.12);color:#F87171}
+body.dark .b-success{background:rgba(74,222,128,.12);color:#4ADE80}
+body.dark .b-failed{background:rgba(239,68,68,.12);color:#F87171}
+body.dark .b-warning{background:rgba(251,191,36,.12);color:#FCD34D}
+body.dark .b-pending{background:rgba(96,165,250,.12);color:#60A5FA}
+body.dark .b-approved{background:rgba(74,222,128,.12);color:#4ADE80}
+body.dark .b-denied{background:rgba(239,68,68,.12);color:#F87171}
+body.dark .b-info{background:rgba(96,165,250,.12);color:#60A5FA}
+/* ALERTS */
+.alert-item{display:flex;align-items:flex-start;gap:12px;padding:.875rem 1rem;border-radius:var(--r);margin-bottom:.75rem;border:1px solid}
+.alert-item:last-child{margin-bottom:0}
+.alert-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem}
+.alert-danger{background:#FEF2F2;border-color:#FECACA}
+.alert-warning{background:#FFFBEB;border-color:#FDE68A}
+.alert-info{background:#EFF6FF;border-color:#BFDBFE}
+.alert-success{background:#F0FDF4;border-color:#BBF7D0}
+body.dark .alert-danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)}
+body.dark .alert-warning{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.2)}
+body.dark .alert-info{background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.2)}
+body.dark .alert-success{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.2)}
+/* REQUEST SUMMARY */
+.req-box{border-radius:var(--r);padding:1.25rem;text-align:center;border:1px solid}
+.req-num{font-size:2rem;font-weight:800;font-family:Inter,sans-serif;line-height:1}
+.req-lbl{font-size:.78rem;font-weight:600;margin-top:.3rem;display:flex;align-items:center;justify-content:center;gap:4px}
+/* BUTTONS */
+.btn{padding:.45rem 1rem;border-radius:8px;font-weight:600;font-size:.8rem;border:none;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--p),var(--s));color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.25)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(79,70,229,.35);color:#fff}
+.btn-sm{padding:.3rem .75rem;font-size:.75rem}
+.btn-outline{background:transparent;color:var(--p);border:1.5px solid var(--p)}
+.btn-outline:hover{background:var(--p);color:#fff}
+/* PROGRESS BAR */
+.prog-bar{height:6px;border-radius:3px;background:var(--bdr);overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s ease}
+/* USER AVATAR */
+.user-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--s));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;flex-shrink:0}
+/* SECTION SEPARATOR */
+.section-divider{display:flex;align-items:center;gap:12px;margin:2rem 0 1.25rem}
+.section-divider .line{flex:1;height:1px;background:var(--bdr)}
+.section-divider .label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);white-space:nowrap;padding:0 .5rem}
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:3rem 1rem}
+.empty-icon{width:56px;height:56px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;margin:0 auto .875rem;font-size:1.3rem;color:var(--t3)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* RISK BAR */
+.risk-bar-wrap{display:flex;align-items:center;gap:6px}
+.risk-bar-bg{flex:1;height:5px;border-radius:3px;background:var(--bdr);overflow:hidden;max-width:56px}
+.risk-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+/* ACTION BTNS */
+.act-btn{padding:.28rem .6rem;border-radius:6px;font-size:.72rem;font-weight:600;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;text-decoration:none}
+.act-btn-view{background:#EEF2FF;color:var(--p)}
+.act-btn-view:hover{background:var(--p);color:#fff}
+.act-btn-flag{background:#FEF2F2;color:var(--danger)}
+.act-btn-flag:hover{background:var(--danger);color:#fff}
+.act-btn-block{background:#FFFBEB;color:#92400E}
+.act-btn-block:hover{background:#F59E0B;color:#fff}
+.act-btn-unblock{background:#F0FDF4;color:#166534}
+.act-btn-unblock:hover{background:#22C55E;color:#fff}
+/* SUSPICIOUS PILL */
+.susp-pill{display:inline-flex;align-items:center;gap:4px;padding:.2rem .55rem;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap}
+.susp-none{background:#F0FDF4;color:#166534}
+.susp-low{background:#FFFBEB;color:#92400E}
+.susp-medium{background:#FEF3C7;color:#B45309}
+.susp-high{background:#FEF2F2;color:#991B1B}
+.susp-critical{background:#4C1D95;color:#DDD6FE}
+</style></head>
+<body>
+
+<script>(function(){var u=localStorage.getItem('lv_user');if(!localStorage.getItem('lv_token')||!u){window.location.href='/login';return;}try{if(JSON.parse(u).role!=='admin'){window.location.href='/dashboard';}}catch(e){window.location.href='/login';}})()</script>
+<div class="sb-overlay" id="sb-overlay"></div>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-icon">LV</div>
+    <div><div class="sb-brand">Legacy<span>Vault</span></div><div class="sb-sub">Admin Panel</div></div>
+  </div>
+  <nav style="padding:.75rem 0;flex:1;overflow-y:auto">
+    <div class="sb-section">Overview</div>
+    <button class="sb-link active" onclick="showSection('dashboard',this)"><i class="fas fa-tachometer-alt"></i>Dashboard</button>
+    <div class="sb-section">Monitoring</div>
+    <button class="sb-link" onclick="showSection('activity',this)"><i class="fas fa-users"></i>User Activity Status</button>
+    <button class="sb-link" onclick="showSection('audit',this)"><i class="fas fa-clipboard-list"></i>Audit Logs</button>
+    <button class="sb-link" onclick="showSection('requests',this)"><i class="fas fa-key"></i>Access Requests</button>
+    <button class="sb-link" onclick="showSection('alerts',this)"><i class="fas fa-bell"></i>System Alerts</button>
+    <div class="sb-section">Account</div>
+    <button class="sb-link" onclick="showSection('settings',this)"><i class="fas fa-cog"></i>Settings</button>
+    <button class="sb-link logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i>Logout</button>
+  </nav>
+  <div class="sb-footer">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="admin-avatar" style="width:32px;height:32px;font-size:.8rem">A</div>
+      <div><div class="admin-name">System Admin</div><div class="admin-role">Administrator</div></div>
+    </div>
+  </div>
+</div>
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" id="menu-btn"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div style="font-size:.78rem;color:var(--t3);display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--a);display:inline-block"></span>System Secure</div>
+      <button class="theme-btn" id="theme-btn" title="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="admin-avatar">A</div>
+        <div class="d-none d-md-block"><div class="admin-name">System Admin</div><div class="admin-role">Administrator</div></div>
+      </div>
+    </div>
+  </div>
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION: DASHBOARD OVERVIEW
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-dashboard">
+      <div class="page-header">
+        <h1><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h1>
+        <p>Legacy Vault Security Control Center — Real-time system overview</p>
+      </div>
+      <!-- Stats Row 1 -->
+      <div class="row g-3 mb-3">
+        <div class="col-6 col-lg-3"><div class="stat-card primary"><div class="stat-icon" style="background:#EEF2FF;color:var(--p)"><i class="fas fa-users"></i></div><div class="stat-val" id="ov-users">0</div><div class="stat-lbl">Total Users</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card success"><div class="stat-icon" style="background:#F0FDF4;color:var(--a)"><i class="fas fa-user-check"></i></div><div class="stat-val" id="ov-active">0</div><div class="stat-lbl">Active Users</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card warning"><div class="stat-icon" style="background:#FFFBEB;color:var(--warn)"><i class="fas fa-user-clock"></i></div><div class="stat-val" id="ov-inactive">0</div><div class="stat-lbl">Inactive Users</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card danger"><div class="stat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-ban"></i></div><div class="stat-val" id="ov-blocked">0</div><div class="stat-lbl">Blocked Users</div></div></div>
+      </div>
+      <!-- Stats Row 2 -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3"><div class="stat-card info"><div class="stat-icon" style="background:#EFF6FF;color:var(--info)"><i class="fas fa-file-alt"></i></div><div class="stat-val" id="ov-docs">0</div><div class="stat-lbl">Documents</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card danger"><div class="stat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-times-circle"></i></div><div class="stat-val" id="ov-failed">0</div><div class="stat-lbl">Failed Logins (24h)</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card warning"><div class="stat-icon" style="background:#FFFBEB;color:var(--warn)"><i class="fas fa-key"></i></div><div class="stat-val" id="ov-pending">0</div><div class="stat-lbl">Pending Requests</div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card danger"><div class="stat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-flag"></i></div><div class="stat-val" id="ov-flags">0</div><div class="stat-lbl">High Risk Users</div></div></div>
+      </div>
+
+      <!-- ══ MAIN USER ACTIVITY TABLE — visible on dashboard load ══ -->
+      <div class="section-card mb-4">
+        <div class="section-header" style="background:linear-gradient(135deg,#1E293B,#334155)">
+          <h6 style="color:#fff"><i class="fas fa-shield-alt" style="color:#818CF8"></i>User Activity &amp; Security Intelligence</h6>
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <div style="position:relative">
+              <i class="fas fa-search" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#94A3B8;font-size:.75rem"></i>
+              <input type="text" id="ov-search" oninput="renderOvTable()" placeholder="Search users…" style="padding:.35rem .75rem .35rem 1.75rem;border-radius:8px;border:1px solid #334155;background:#0F172A;color:#F1F5F9;font-size:.78rem;width:180px">
+            </div>
+            <select id="ov-filter" onchange="renderOvTable()" style="font-size:.75rem;padding:.35rem .6rem;border-radius:8px;border:1px solid #334155;background:#0F172A;color:#F1F5F9">
+              <option value="all">All Users</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="blocked">Blocked</option>
+              <option value="high">High Risk</option>
+              <option value="suspicious">Suspicious</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="showSection('activity',null)" style="white-space:nowrap">Full View →</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="min-width:180px">User Name</th>
+                <th style="min-width:180px">Email</th>
+                <th style="min-width:120px">Last Activity</th>
+                <th style="min-width:80px">Inactive</th>
+                <th style="min-width:80px">Documents</th>
+                <th style="min-width:130px">Suspicious Activity</th>
+                <th style="min-width:110px">Risk Level</th>
+                <th style="min-width:90px">Status</th>
+                <th style="min-width:130px">Action</th>
+              </tr>
+            </thead>
+            <tbody id="ov-users-tbody"></tbody>
+          </table>
+        </div>
+        <!-- Risk legend -->
+        <div style="padding:.75rem 1.5rem;border-top:1px solid var(--bdr);display:flex;flex-wrap:wrap;gap:.875rem;align-items:center;background:var(--bg2)">
+          <span style="font-size:.7rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Risk:</span>
+          <span style="font-size:.72rem;color:#166534;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#22C55E;display:inline-block"></span>Low (0–29)</span>
+          <span style="font-size:.72rem;color:#92400E;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#F59E0B;display:inline-block"></span>Medium (30–59)</span>
+          <span style="font-size:.72rem;color:#991B1B;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#EF4444;display:inline-block"></span>High (60–79)</span>
+          <span style="font-size:.72rem;color:#7C3AED;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#7C3AED;display:inline-block"></span>Critical (80–100)</span>
+          <span style="margin-left:auto;font-size:.7rem;color:var(--t3)" id="ov-table-count"></span>
+        </div>
+      </div>
+
+      <!-- Bottom row: Audit preview + Alerts + Requests -->
+      <div class="row g-4">
+        <div class="col-lg-5">
+          <div class="section-card">
+            <div class="section-header"><h6><i class="fas fa-clipboard-list"></i>Recent Audit Logs</h6><button class="btn btn-primary btn-sm" onclick="showSection('audit',null)">View All</button></div>
+            <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>User</th><th>Action</th><th>Time</th><th>Status</th></tr></thead><tbody id="ov-audit-tbody"></tbody></table></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="section-card">
+            <div class="section-header"><h6><i class="fas fa-bell"></i>System Alerts</h6><button class="btn btn-primary btn-sm" onclick="showSection('alerts',null)">View All</button></div>
+            <div style="padding:1rem" id="ov-alerts-body"></div>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="section-card">
+            <div class="section-header"><h6><i class="fas fa-key"></i>Access Requests</h6><button class="btn btn-primary btn-sm" onclick="showSection('requests',null)">View All</button></div>
+            <div class="d-flex flex-column gap-2" style="padding:1rem" id="ov-req-summary"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION A: USER ACTIVITY STATUS — SECURITY INTELLIGENCE
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-activity" style="display:none">
+      <div class="page-header" style="background:linear-gradient(135deg,#1E293B,#334155)">
+        <h1><i class="fas fa-shield-alt me-2"></i>User Activity Intelligence</h1>
+        <p>Real-time security monitoring — activity status, risk scoring, suspicious behaviour detection</p>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-2"><div class="stat-card success"><div class="stat-icon" style="background:#F0FDF4;color:var(--a)"><i class="fas fa-user-check"></i></div><div class="stat-val" id="act-active-count">0</div><div class="stat-lbl">Active</div></div></div>
+        <div class="col-6 col-xl-2"><div class="stat-card warning"><div class="stat-icon" style="background:#FFFBEB;color:var(--warn)"><i class="fas fa-user-clock"></i></div><div class="stat-val" id="act-inactive-count">0</div><div class="stat-lbl">Inactive</div></div></div>
+        <div class="col-6 col-xl-2"><div class="stat-card danger"><div class="stat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-ban"></i></div><div class="stat-val" id="act-blocked-count">0</div><div class="stat-lbl">Blocked</div></div></div>
+        <div class="col-6 col-xl-2"><div class="stat-card danger"><div class="stat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-val" id="act-highrisk-count">0</div><div class="stat-lbl">High Risk</div></div></div>
+        <div class="col-6 col-xl-2"><div class="stat-card warning"><div class="stat-icon" style="background:#FFFBEB;color:var(--warn)"><i class="fas fa-flag"></i></div><div class="stat-val" id="act-suspicious-count">0</div><div class="stat-lbl">Suspicious</div></div></div>
+        <div class="col-6 col-xl-2"><div class="stat-card primary"><div class="stat-icon" style="background:#EEF2FF;color:var(--p)"><i class="fas fa-users"></i></div><div class="stat-val" id="act-total-count">0</div><div class="stat-lbl">Total Users</div></div></div>
+      </div>
+
+      <!-- Search + Filter Bar -->
+      <div class="section-card" style="margin-bottom:1.5rem">
+        <div style="padding:1rem 1.5rem;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center">
+          <div style="flex:1;min-width:200px;position:relative">
+            <i class="fas fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:.8rem"></i>
+            <input type="text" id="act-search" oninput="renderActivityTable()" placeholder="Search by name or email…" style="width:100%;padding:.45rem .75rem .45rem 2rem;border-radius:8px;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt);font-size:.82rem">
+          </div>
+          <select id="act-filter" onchange="renderActivityTable()" style="font-size:.78rem;padding:.45rem .75rem;border-radius:8px;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt)">
+            <option value="all">All Users</option>
+            <option value="active">Active Only</option>
+            <option value="inactive">Inactive Only</option>
+            <option value="blocked">Blocked Only</option>
+            <option value="high">High Risk Only</option>
+            <option value="suspicious">Suspicious Only</option>
+          </select>
+          <select id="act-sort" onchange="renderActivityTable()" style="font-size:.78rem;padding:.45rem .75rem;border-radius:8px;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt)">
+            <option value="risk_desc">Sort: Risk ↓</option>
+            <option value="risk_asc">Sort: Risk ↑</option>
+            <option value="inactive_desc">Sort: Most Inactive</option>
+            <option value="name_asc">Sort: Name A–Z</option>
+          </select>
+          <div style="font-size:.75rem;color:var(--t3);white-space:nowrap" id="act-count-label">Showing all users</div>
+        </div>
+      </div>
+
+      <!-- Main Intelligence Table -->
+      <div class="section-card">
+        <div class="section-header">
+          <h6><i class="fas fa-table"></i>User Security Intelligence Table</h6>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <span style="font-size:.72rem;color:var(--t3)">Auto-refreshes every 60s</span>
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--a);animation:pulse 2s infinite"></div>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table" id="act-main-table">
+            <thead>
+              <tr>
+                <th style="min-width:200px">User Name</th>
+                <th style="min-width:190px">Email</th>
+                <th style="min-width:130px">Last Activity</th>
+                <th style="min-width:90px">Inactive</th>
+                <th style="min-width:90px">Documents</th>
+                <th style="min-width:140px">Suspicious Activity</th>
+                <th style="min-width:110px">Risk Level</th>
+                <th style="min-width:90px">Status</th>
+                <th style="min-width:130px">Action</th>
+              </tr>
+            </thead>
+            <tbody id="activity-tbody"></tbody>
+          </table>
+        </div>
+        <!-- Legend -->
+        <div style="padding:.875rem 1.5rem;border-top:1px solid var(--bdr);display:flex;flex-wrap:wrap;gap:1rem;align-items:center">
+          <span style="font-size:.72rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Risk Legend:</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:#166534"><span style="width:10px;height:10px;border-radius:50%;background:#22C55E;display:inline-block"></span>Low (0–29)</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:#92400E"><span style="width:10px;height:10px;border-radius:50%;background:#F59E0B;display:inline-block"></span>Medium (30–59)</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:#991B1B"><span style="width:10px;height:10px;border-radius:50%;background:#EF4444;display:inline-block"></span>High (60–79)</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:#7C3AED"><span style="width:10px;height:10px;border-radius:50%;background:#7C3AED;display:inline-block"></span>Critical (80–100)</span>
+          <span style="margin-left:auto;font-size:.72rem;color:var(--t3)">Status based on last_activity_timestamp vs threshold</span>
+        </div>
+      </div>
+
+      <!-- User Detail Modal -->
+      <div id="user-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeUserModal()">
+        <div style="background:var(--card);border:1px solid var(--bdr);border-radius:16px;width:90%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(15,23,42,.3)">
+          <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+            <h6 style="margin:0;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px"><i class="fas fa-user-shield" style="color:var(--p)"></i>User Security Profile</h6>
+            <button onclick="closeUserModal()" style="background:none;border:none;color:var(--t3);font-size:1.1rem;cursor:pointer"><i class="fas fa-times"></i></button>
+          </div>
+          <div id="user-detail-body" style="padding:1.5rem"></div>
+        </div>
+      </div>
+
+      <!-- Flag Modal -->
+      <div id="flag-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeFlagModal()">
+        <div style="background:var(--card);border:1px solid var(--bdr);border-radius:16px;width:90%;max-width:440px;box-shadow:0 24px 64px rgba(15,23,42,.3)">
+          <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+            <h6 style="margin:0;font-weight:700;color:var(--txt)"><i class="fas fa-flag me-2" style="color:var(--danger)"></i>Flag User Activity</h6>
+            <button onclick="closeFlagModal()" style="background:none;border:none;color:var(--t3);font-size:1.1rem;cursor:pointer"><i class="fas fa-times"></i></button>
+          </div>
+          <div style="padding:1.5rem">
+            <input type="hidden" id="flag-user-id">
+            <div style="margin-bottom:1rem">
+              <label style="font-size:.82rem;font-weight:600;color:var(--t2);display:block;margin-bottom:.4rem">Reason for flagging</label>
+              <textarea id="flag-reason" rows="3" placeholder="Describe the suspicious behaviour…" style="width:100%;padding:.625rem .875rem;border-radius:8px;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt);font-size:.82rem;resize:vertical"></textarea>
+            </div>
+            <div style="margin-bottom:1.25rem">
+              <label style="font-size:.82rem;font-weight:600;color:var(--t2);display:block;margin-bottom:.4rem">Severity</label>
+              <select id="flag-severity" style="width:100%;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt);font-size:.82rem">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:.75rem">
+              <button onclick="closeFlagModal()" style="flex:1;padding:.625rem;border-radius:8px;border:1px solid var(--bdr);background:var(--bg2);color:var(--t2);font-size:.82rem;font-weight:600;cursor:pointer">Cancel</button>
+              <button onclick="submitFlag()" style="flex:1;padding:.625rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--danger),#DC2626);color:#fff;font-size:.82rem;font-weight:700;cursor:pointer"><i class="fas fa-flag me-2"></i>Submit Flag</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION B: AUDIT LOGS
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-audit" style="display:none">
+      <div class="page-header">
+        <h1><i class="fas fa-clipboard-list me-2"></i>Audit Logs</h1>
+        <p>Complete history of all user actions — login attempts, uploads, access requests</p>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="stat-card success"><div class="stat-icon" style="background:#F0FDF4;color:var(--a)"><i class="fas fa-check-circle"></i></div><div class="stat-val" id="log-success-count">0</div><div class="stat-lbl">Successful Actions</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card danger"><div class="stat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-times-circle"></i></div><div class="stat-val" id="log-failed-count">0</div><div class="stat-lbl">Failed / Suspicious</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card info"><div class="stat-icon" style="background:#EFF6FF;color:var(--info)"><i class="fas fa-sign-in-alt"></i></div><div class="stat-val" id="log-login-count">0</div><div class="stat-lbl">Login Attempts</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card warning"><div class="stat-icon" style="background:#FFFBEB;color:var(--warn)"><i class="fas fa-upload"></i></div><div class="stat-val" id="log-upload-count">0</div><div class="stat-lbl">Document Uploads</div></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header">
+          <h6><i class="fas fa-clipboard-list"></i>Audit Log History</h6>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <select id="log-filter" onchange="renderAuditTable()" style="font-size:.78rem;padding:.3rem .6rem;border-radius:8px;border:1px solid var(--bdr);background:var(--card);color:var(--txt)">
+              <option value="all">All Actions</option>
+              <option value="login">Login Attempts</option>
+              <option value="upload">Document Uploads</option>
+              <option value="access">Access Requests</option>
+              <option value="failed">Failed / Suspicious</option>
+            </select>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead><tr><th>User</th><th>Email</th><th>Action</th><th>Details</th><th>IP Address</th><th>Time</th><th>Status</th></tr></thead>
+            <tbody id="audit-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION C: SYSTEM ALERTS
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-alerts" style="display:none">
+      <div class="page-header">
+        <h1><i class="fas fa-bell me-2"></i>System Alerts</h1>
+        <p>Automated security alerts based on behavioral analysis and threat detection</p>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="stat-card danger"><div class="stat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-val" id="alrt-critical">0</div><div class="stat-lbl">Critical Alerts</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card warning"><div class="stat-icon" style="background:#FFFBEB;color:var(--warn)"><i class="fas fa-exclamation-circle"></i></div><div class="stat-val" id="alrt-warning">0</div><div class="stat-lbl">Warnings</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card info"><div class="stat-icon" style="background:#EFF6FF;color:var(--info)"><i class="fas fa-info-circle"></i></div><div class="stat-val" id="alrt-info">0</div><div class="stat-lbl">Info Alerts</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card success"><div class="stat-icon" style="background:#F0FDF4;color:var(--a)"><i class="fas fa-check-circle"></i></div><div class="stat-val" id="alrt-resolved">0</div><div class="stat-lbl">Resolved</div></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h6><i class="fas fa-bell"></i>Active System Alerts</h6><span id="alrt-badge" style="font-size:.72rem;padding:.25rem .75rem;border-radius:20px;font-weight:700;background:#FEF2F2;color:#991B1B">0 active</span></div>
+        <div style="padding:1.25rem" id="alerts-full-body"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION D: ACCESS REQUEST MONITORING
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-requests" style="display:none">
+      <div class="page-header">
+        <h1><i class="fas fa-key me-2"></i>Access Request Monitoring</h1>
+        <p>Monitor emergency access requests and multi-party verification status</p>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="stat-card warning"><div class="stat-icon" style="background:#FFFBEB;color:var(--warn)"><i class="fas fa-clock"></i></div><div class="stat-val" id="req-pending-count">0</div><div class="stat-lbl">Pending</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card success"><div class="stat-icon" style="background:#F0FDF4;color:var(--a)"><i class="fas fa-check-circle"></i></div><div class="stat-val" id="req-approved-count">0</div><div class="stat-lbl">Approved</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card danger"><div class="stat-icon" style="background:#FEF2F2;color:var(--danger)"><i class="fas fa-times-circle"></i></div><div class="stat-val" id="req-denied-count">0</div><div class="stat-lbl">Denied</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card info"><div class="stat-icon" style="background:#EFF6FF;color:var(--info)"><i class="fas fa-list"></i></div><div class="stat-val" id="req-total-count">0</div><div class="stat-lbl">Total Requests</div></div></div>
+      </div>
+      <!-- Summary boxes -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="req-box" style="background:#FFFBEB;border-color:#FDE68A"><div class="req-num" style="color:#92400E" id="req-s-pending">0</div><div class="req-lbl" style="color:#92400E"><i class="fas fa-clock"></i>Pending Approval</div></div></div>
+        <div class="col-md-4"><div class="req-box" style="background:#F0FDF4;border-color:#BBF7D0"><div class="req-num" style="color:#166534" id="req-s-approved">0</div><div class="req-lbl" style="color:#166534"><i class="fas fa-check-circle"></i>Approved</div></div></div>
+        <div class="col-md-4"><div class="req-box" style="background:#FEF2F2;border-color:#FECACA"><div class="req-num" style="color:#991B1B" id="req-s-denied">0</div><div class="req-lbl" style="color:#991B1B"><i class="fas fa-times-circle"></i>Denied</div></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header">
+          <h6><i class="fas fa-key"></i>Access Request Details</h6>
+          <select id="req-filter" onchange="renderRequestsTable()" style="font-size:.78rem;padding:.3rem .6rem;border-radius:8px;border:1px solid var(--bdr);background:var(--card);color:var(--txt)">
+            <option value="all">All Requests</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="denied">Denied</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead><tr><th>Vault Owner</th><th>Requested By</th><th>Type</th><th>Reason</th><th>Approvals</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="requests-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS SECTION -->
+    <div id="sec-settings" style="display:none">
+      <div class="page-header"><h1><i class="fas fa-cog me-2"></i>Settings</h1><p>Admin panel configuration and preferences</p></div>
+      <div class="row g-4">
+        <div class="col-md-6"><div class="section-card"><div class="section-header"><h6><i class="fas fa-palette"></i>Appearance</h6></div><div style="padding:1.5rem"><div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 0;border-bottom:1px solid var(--bdr)"><div><div style="font-size:.875rem;font-weight:600;color:var(--txt)">Dark Mode</div><div style="font-size:.78rem;color:var(--t3)">Toggle dark/light theme</div></div><button class="theme-btn" id="settings-theme-btn" onclick="toggleTheme()"><i class="fas fa-moon"></i></button></div><div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 0"><div><div style="font-size:.875rem;font-weight:600;color:var(--txt)">Inactivity Threshold</div><div style="font-size:.78rem;color:var(--t3)">Days before user marked inactive</div></div><select id="threshold-select" style="font-size:.82rem;padding:.35rem .6rem;border-radius:8px;border:1px solid var(--bdr);background:var(--card);color:var(--txt)"><option value="7">7 days</option><option value="14">14 days</option><option value="30" selected>30 days</option><option value="60">60 days</option><option value="90">90 days</option></select></div></div></div></div>
+        <div class="col-md-6"><div class="section-card"><div class="section-header"><h6><i class="fas fa-shield-alt"></i>Security Status</h6></div><div style="padding:1.5rem"><div style="display:flex;flex-direction:column;gap:.75rem"><div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;background:var(--bg2);border-radius:var(--r)"><span style="font-size:.875rem;color:var(--t2)">AES-256 Encryption</span><span class="b-success badge"><i class="fas fa-check-circle"></i>Active</span></div><div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;background:var(--bg2);border-radius:var(--r)"><span style="font-size:.875rem;color:var(--t2)">bcrypt Hashing</span><span class="b-success badge"><i class="fas fa-check-circle"></i>Active</span></div><div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;background:var(--bg2);border-radius:var(--r)"><span style="font-size:.875rem;color:var(--t2)">JWT Authentication</span><span class="b-success badge"><i class="fas fa-check-circle"></i>Active</span></div><div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;background:var(--bg2);border-radius:var(--r)"><span style="font-size:.875rem;color:var(--t2)">Rate Limiting</span><span class="b-success badge"><i class="fas fa-check-circle"></i>Active</span></div><div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;background:var(--bg2);border-radius:var(--r)"><span style="font-size:.875rem;color:var(--t2)">2-of-3 Verification</span><span class="b-success badge"><i class="fas fa-check-circle"></i>Active</span></div></div></div></div></div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DUMMY DATA — simulates real backend data
+// ═══════════════════════════════════════════════════════════════
+const now = Date.now();
+const daysAgo = d => new Date(now - d * 86400000).toISOString();
+
+const USERS = [
+  {id:1,name:'James Morrison',email:'james@example.com',last_active:daysAgo(2),docs:8,blocked:false,risk_score:12,failed_logins:0,suspicious_events:0,contacts:3,emergency_requests:0,joined:daysAgo(180)},
+  {id:2,name:'Sarah Reynolds',email:'sarah@example.com',last_active:daysAgo(5),docs:12,blocked:false,risk_score:18,failed_logins:1,suspicious_events:0,contacts:2,emergency_requests:0,joined:daysAgo(220)},
+  {id:3,name:'David Kim',email:'david@example.com',last_active:daysAgo(15),docs:3,blocked:false,risk_score:35,failed_logins:3,suspicious_events:2,contacts:1,emergency_requests:1,joined:daysAgo(90)},
+  {id:4,name:'Emily Chen',email:'emily@example.com',last_active:daysAgo(35),docs:6,blocked:false,risk_score:42,failed_logins:2,suspicious_events:1,contacts:2,emergency_requests:0,joined:daysAgo(300)},
+  {id:5,name:'Michael Torres',email:'michael@example.com',last_active:daysAgo(45),docs:2,blocked:false,risk_score:55,failed_logins:5,suspicious_events:3,contacts:0,emergency_requests:1,joined:daysAgo(60)},
+  {id:6,name:'Lisa Johnson',email:'lisa@example.com',last_active:daysAgo(60),docs:0,blocked:true,risk_score:78,failed_logins:12,suspicious_events:6,contacts:1,emergency_requests:0,joined:daysAgo(400)},
+  {id:7,name:'Robert Davis',email:'robert@example.com',last_active:daysAgo(1),docs:15,blocked:false,risk_score:8,failed_logins:0,suspicious_events:0,contacts:3,emergency_requests:0,joined:daysAgo(500)},
+  {id:8,name:'Amanda Wilson',email:'amanda@example.com',last_active:daysAgo(90),docs:4,blocked:false,risk_score:62,failed_logins:4,suspicious_events:4,contacts:2,emergency_requests:2,joined:daysAgo(150)},
+  {id:9,name:'Chris Martinez',email:'chris@example.com',last_active:daysAgo(8),docs:7,blocked:false,risk_score:22,failed_logins:1,suspicious_events:0,contacts:2,emergency_requests:0,joined:daysAgo(270)},
+  {id:10,name:'Jessica Brown',email:'jessica@example.com',last_active:daysAgo(120),docs:1,blocked:true,risk_score:91,failed_logins:18,suspicious_events:9,contacts:0,emergency_requests:3,joined:daysAgo(350)},
+  {id:11,name:'Thomas Wright',email:'thomas@example.com',last_active:daysAgo(3),docs:9,blocked:false,risk_score:15,failed_logins:0,suspicious_events:0,contacts:3,emergency_requests:0,joined:daysAgo(200)},
+  {id:12,name:'Olivia Scott',email:'olivia@example.com',last_active:daysAgo(50),docs:5,blocked:false,risk_score:48,failed_logins:3,suspicious_events:2,contacts:1,emergency_requests:1,joined:daysAgo(120)},
+];
+
+const AUDIT_LOGS = [
+  {id:1,user:'James Morrison',email:'james@example.com',action:'LOGIN_SUCCESS',detail:'Login from 192.168.1.1',ip:'192.168.1.1',time:daysAgo(0.1),type:'login',status:'success'},
+  {id:2,user:'Sarah Reynolds',email:'sarah@example.com',action:'DOCUMENT_UPLOADED',detail:'Uploaded: Last Will.pdf',ip:'10.0.0.5',time:daysAgo(0.2),type:'upload',status:'success'},
+  {id:3,user:'Unknown',email:'unknown@hacker.com',action:'LOGIN_FAILED',detail:'Failed login attempt',ip:'45.33.32.156',time:daysAgo(0.3),type:'login',status:'failed'},
+  {id:4,user:'Unknown',email:'unknown@hacker.com',action:'LOGIN_FAILED',detail:'Failed login attempt',ip:'45.33.32.156',time:daysAgo(0.31),type:'login',status:'failed'},
+  {id:5,user:'Unknown',email:'unknown@hacker.com',action:'LOGIN_FAILED',detail:'Failed login attempt',ip:'45.33.32.156',time:daysAgo(0.32),type:'login',status:'failed'},
+  {id:6,user:'David Kim',email:'david@example.com',action:'EMERGENCY_TRIGGERED',detail:'Emergency access request created',ip:'172.16.0.1',time:daysAgo(0.5),type:'access',status:'warning'},
+  {id:7,user:'Emily Chen',email:'emily@example.com',action:'DOCUMENT_DOWNLOADED',detail:'Downloaded: Property Deed.pdf',ip:'192.168.2.10',time:daysAgo(1),type:'upload',status:'success'},
+  {id:8,user:'Robert Davis',email:'robert@example.com',action:'LOGIN_SUCCESS',detail:'Login from 10.0.1.5',ip:'10.0.1.5',time:daysAgo(1.2),type:'login',status:'success'},
+  {id:9,user:'Michael Torres',email:'michael@example.com',action:'PASSWORD_CHANGED',detail:'Password updated successfully',ip:'192.168.1.50',time:daysAgo(2),type:'login',status:'success'},
+  {id:10,user:'Lisa Johnson',email:'lisa@example.com',action:'ACCOUNT_BLOCKED',detail:'Account blocked by admin',ip:'admin',time:daysAgo(3),type:'access',status:'failed'},
+  {id:11,user:'Chris Martinez',email:'chris@example.com',action:'CONTACT_ADDED',detail:'Added trusted contact: spouse',ip:'10.0.0.8',time:daysAgo(4),type:'upload',status:'success'},
+  {id:12,user:'Amanda Wilson',email:'amanda@example.com',action:'LOGIN_FAILED',detail:'Incorrect password',ip:'192.168.3.20',time:daysAgo(5),type:'login',status:'failed'},
+];
+
+const ACCESS_REQUESTS = [
+  {id:1,owner:'David Kim',owner_email:'david@example.com',requested_by:'Kim Family Trust',type:'emergency',reason:'Medical emergency — owner incapacitated',approvals:1,required:2,status:'pending',date:daysAgo(0.5)},
+  {id:2,owner:'James Morrison',owner_email:'james@example.com',requested_by:'Morrison Estate',type:'inheritance',reason:'Owner deceased — probate process',approvals:2,required:2,status:'approved',date:daysAgo(5)},
+  {id:3,owner:'Sarah Reynolds',owner_email:'sarah@example.com',requested_by:'Reynolds Family',type:'emergency',reason:'Owner in critical condition',approvals:0,required:2,status:'pending',date:daysAgo(1)},
+  {id:4,owner:'Emily Chen',owner_email:'emily@example.com',requested_by:'Chen Legal',type:'document',reason:'Legal document retrieval',approvals:1,required:2,status:'denied',date:daysAgo(10)},
+  {id:5,owner:'Robert Davis',owner_email:'robert@example.com',requested_by:'Davis Trust',type:'inheritance',reason:'Estate settlement',approvals:2,required:2,status:'approved',date:daysAgo(15)},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// UTILITY FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+let THRESHOLD_DAYS = 30;
+
+function getStatus(user) {
+  if (user.blocked) return 'blocked';
+  const days = Math.floor((now - new Date(user.last_active).getTime()) / 86400000);
+  return days <= THRESHOLD_DAYS ? 'active' : 'inactive';
+}
+
+function getDaysSince(dateStr) {
+  return Math.floor((now - new Date(dateStr).getTime()) / 86400000);
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  const diff = Math.floor((now - d.getTime()) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  if (diff < 2592000) return Math.floor(diff/86400) + 'd ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+function statusBadge(s) {
+  const map = {
+    active: '<span class="badge b-active"><i class="fas fa-circle" style="font-size:.45rem"></i>Active</span>',
+    inactive: '<span class="badge b-inactive"><i class="fas fa-circle" style="font-size:.45rem"></i>Inactive</span>',
+    blocked: '<span class="badge" style="background:#FEF2F2;color:#991B1B"><i class="fas fa-ban" style="font-size:.7rem"></i>Blocked</span>',
+  };
+  return map[s] || s;
+}
+
+function actionBadge(log) {
+  if (log.status === 'success') return '<span class="badge b-success"><i class="fas fa-check-circle" style="font-size:.7rem"></i>Success</span>';
+  if (log.status === 'failed') return '<span class="badge b-failed"><i class="fas fa-times-circle" style="font-size:.7rem"></i>Failed</span>';
+  return '<span class="badge b-warning"><i class="fas fa-exclamation-triangle" style="font-size:.7rem"></i>Warning</span>';
+}
+
+function reqBadge(s) {
+  const map = {
+    pending: '<span class="badge b-pending"><i class="fas fa-clock" style="font-size:.7rem"></i>Pending</span>',
+    approved: '<span class="badge b-approved"><i class="fas fa-check-circle" style="font-size:.7rem"></i>Approved</span>',
+    denied: '<span class="badge b-denied"><i class="fas fa-times-circle" style="font-size:.7rem"></i>Denied</span>',
+  };
+  return map[s] || s;
+}
+
+function initials(name) {
+  return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+
+function getRiskLevel(score) {
+  if (score >= 80) return {label:'Critical',color:'#7C3AED',bg:'rgba(124,58,237,.12)',bar:'#7C3AED'};
+  if (score >= 60) return {label:'High',color:'#991B1B',bg:'rgba(239,68,68,.12)',bar:'#EF4444'};
+  if (score >= 30) return {label:'Medium',color:'#92400E',bg:'rgba(245,158,11,.12)',bar:'#F59E0B'};
+  return {label:'Low',color:'#166534',bg:'rgba(34,197,94,.12)',bar:'#22C55E'};
+}
+
+function getSuspiciousLabel(events, failedLogins) {
+  const total = events + Math.floor(failedLogins / 3);
+  if (total === 0) return {label:'None',cls:'susp-none',icon:'fa-check-circle'};
+  if (total <= 1) return {label:'Low',cls:'susp-low',icon:'fa-exclamation-circle'};
+  if (total <= 3) return {label:'Medium',cls:'susp-medium',icon:'fa-exclamation-triangle'};
+  if (total <= 6) return {label:'High',cls:'susp-high',icon:'fa-exclamation-triangle'};
+  return {label:'Critical',cls:'susp-critical',icon:'fa-skull-crossbones'};
+}
+
+function renderActivityTable() {
+  const filter = document.getElementById('act-filter')?.value || 'all';
+  const search = (document.getElementById('act-search')?.value || '').toLowerCase();
+  const sort   = document.getElementById('act-sort')?.value || 'risk_desc';
+  const tbody  = document.getElementById('activity-tbody');
+  if (!tbody) return;
+
+  let filtered = USERS.filter(u => {
+    const st = getStatus(u);
+    const risk = getRiskLevel(u.risk_score);
+    const susp = getSuspiciousLabel(u.suspicious_events, u.failed_logins);
+    const matchSearch = !search || u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search);
+    const matchFilter =
+      filter === 'all' ||
+      (filter === 'active'     && st === 'active') ||
+      (filter === 'inactive'   && st === 'inactive') ||
+      (filter === 'blocked'    && st === 'blocked') ||
+      (filter === 'high'       && (risk.label === 'High' || risk.label === 'Critical')) ||
+      (filter === 'suspicious' && susp.label !== 'None');
+    return matchSearch && matchFilter;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (sort === 'risk_desc')     return b.risk_score - a.risk_score;
+    if (sort === 'risk_asc')      return a.risk_score - b.risk_score;
+    if (sort === 'inactive_desc') return getDaysSince(a.last_active) - getDaysSince(b.last_active) > 0 ? -1 : 1;
+    if (sort === 'name_asc')      return a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  document.getElementById('act-count-label').textContent =
+    `Showing ${filtered.length} of ${USERS.length} users`;
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:3rem;color:var(--t3)">
+      <i class="fas fa-search" style="font-size:1.5rem;display:block;margin-bottom:.5rem;opacity:.4"></i>No users match your filters</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(u => {
+    const st   = getStatus(u);
+    const days = getDaysSince(u.last_active);
+    const risk = getRiskLevel(u.risk_score);
+    const susp = getSuspiciousLabel(u.suspicious_events, u.failed_logins);
+    const daysColor = days > 60 ? 'var(--danger)' : days > 30 ? 'var(--warn)' : 'var(--a)';
+
+    // Risk bar
+    const riskBar = `<div class="risk-bar-wrap">
+      <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:${u.risk_score}%;background:${risk.bar}"></div></div>
+      <span style="font-size:.78rem;font-weight:800;color:${risk.color}">${u.risk_score}</span>
+    </div>`;
+
+    // Risk badge
+    const riskBadge = `<div style="display:flex;flex-direction:column;gap:4px">
+      <span style="display:inline-flex;align-items:center;gap:4px;padding:.22rem .6rem;border-radius:20px;font-size:.7rem;font-weight:700;background:${risk.bg};color:${risk.color}">
+        <i class="fas fa-circle" style="font-size:.4rem"></i>${risk.label}
+      </span>
+      ${riskBar}
+    </div>`;
+
+    // Suspicious badge
+    const suspBadge = `<div style="display:flex;flex-direction:column;gap:3px">
+      <span class="susp-pill ${susp.cls}"><i class="fas ${susp.icon}" style="font-size:.65rem"></i>${susp.label}</span>
+      <span style="font-size:.68rem;color:var(--t3)">${u.failed_logins} failed login${u.failed_logins!==1?'s':''} · ${u.suspicious_events} event${u.suspicious_events!==1?'s':''}</span>
+    </div>`;
+
+    // Status badge
+    const stBadge = st === 'active'
+      ? `<span class="badge b-active"><i class="fas fa-circle" style="font-size:.4rem"></i>Active</span>`
+      : st === 'blocked'
+      ? `<span class="badge" style="background:#FEF2F2;color:#991B1B"><i class="fas fa-ban" style="font-size:.7rem"></i>Blocked</span>`
+      : `<span class="badge b-inactive"><i class="fas fa-circle" style="font-size:.4rem"></i>Inactive</span>`;
+
+    // Action buttons
+    const blockBtn = u.blocked
+      ? `<button class="act-btn act-btn-unblock" onclick="toggleBlock(${u.id},false,'${u.name}')"><i class="fas fa-unlock"></i>Unblock</button>`
+      : `<button class="act-btn act-btn-block" onclick="toggleBlock(${u.id},true,'${u.name}')"><i class="fas fa-ban"></i>Block</button>`;
+
+    const actions = `<div style="display:flex;gap:4px;flex-wrap:wrap">
+      <button class="act-btn act-btn-view" onclick="viewUserDetail(${u.id})"><i class="fas fa-eye"></i>View</button>
+      <button class="act-btn act-btn-flag" onclick="openFlagModal(${u.id},'${u.name}')"><i class="fas fa-flag"></i>Flag</button>
+      ${blockBtn}
+    </div>`;
+
+    // Row highlight for high risk
+    const rowStyle = u.risk_score >= 80 ? 'background:rgba(124,58,237,.04)' :
+                     u.risk_score >= 60 ? 'background:rgba(239,68,68,.03)' : '';
+
+    return `<tr style="${rowStyle}">
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="user-av" style="background:${u.risk_score>=60?'linear-gradient(135deg,#EF4444,#DC2626)':u.risk_score>=30?'linear-gradient(135deg,#F59E0B,#D97706)':'linear-gradient(135deg,var(--p),var(--s))'}">${initials(u.name)}</div>
+          <div>
+            <div style="font-weight:700;font-size:.875rem;color:var(--txt);line-height:1.2">${u.name}</div>
+            <div style="font-size:.7rem;color:var(--t3)">ID #${u.id} · ${u.contacts} contact${u.contacts!==1?'s':''}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div style="font-size:.82rem;color:var(--t2)">${u.email}</div>
+        ${u.emergency_requests>0?`<div style="font-size:.68rem;color:var(--danger);margin-top:2px"><i class="fas fa-exclamation-triangle me-1"></i>${u.emergency_requests} emergency req.</div>`:''}
+      </td>
+      <td>
+        <div style="font-size:.82rem;color:var(--txt);font-weight:500">${formatDate(u.last_active)}</div>
+        <div style="font-size:.7rem;color:var(--t3)">Joined ${formatDate(u.joined)}</div>
+      </td>
+      <td><span style="font-weight:800;color:${daysColor};font-size:.9rem">${days}d</span></td>
+      <td>
+        <div style="font-size:.875rem;font-weight:600;color:var(--txt)">${u.docs}</div>
+        <div style="font-size:.7rem;color:var(--t3)">document${u.docs!==1?'s':''}</div>
+      </td>
+      <td>${suspBadge}</td>
+      <td>${riskBadge}</td>
+      <td>${stBadge}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAuditTable() {
+  const filter = document.getElementById('log-filter')?.value || 'all';
+  const tbody = document.getElementById('audit-tbody');
+  if (!tbody) return;
+  const filtered = AUDIT_LOGS.filter(l => {
+    if (filter === 'all') return true;
+    if (filter === 'login') return l.type === 'login';
+    if (filter === 'upload') return l.type === 'upload';
+    if (filter === 'access') return l.type === 'access';
+    if (filter === 'failed') return l.status === 'failed';
+    return true;
+  });
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--t3)">No logs found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(l => `<tr>
+    <td><div style="font-weight:600;font-size:.875rem;color:var(--txt)">${l.user}</div></td>
+    <td style="font-size:.78rem;color:var(--t3)">${l.email}</td>
+    <td style="font-size:.82rem;color:var(--txt)">${l.action.replace(/_/g,' ')}</td>
+    <td style="font-size:.78rem;color:var(--t2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.detail}</td>
+    <td style="font-size:.78rem;font-family:monospace;color:var(--t3)">${l.ip}</td>
+    <td style="font-size:.78rem;color:var(--t3);white-space:nowrap">${formatDate(l.time)}</td>
+    <td>${actionBadge(l)}</td>
+  </tr>`).join('');
+}
+
+function buildAlerts() {
+  const failedLogins = AUDIT_LOGS.filter(l => l.status === 'failed' && l.type === 'login' && getDaysSince(l.time) < 1).length;
+  const blockedUsers = USERS.filter(u => u.blocked).length;
+  const inactiveUsers = USERS.filter(u => getStatus(u) === 'inactive').length;
+  const pendingReqs = ACCESS_REQUESTS.filter(r => r.status === 'pending').length;
+  const suspiciousIPs = [...new Set(AUDIT_LOGS.filter(l=>l.status==='failed').map(l=>l.ip))].length;
+
+  const alerts = [];
+  if (failedLogins >= 3) alerts.push({type:'danger',icon:'fa-exclamation-triangle',title:'Multiple Failed Login Attempts Detected',msg:`${failedLogins} failed login attempts in the last 24 hours from ${suspiciousIPs} unique IP address(es). Possible brute force attack in progress.`,time:'Just now'});
+  if (suspiciousIPs > 0) alerts.push({type:'danger',icon:'fa-user-secret',title:'Suspicious Activity Detected',msg:`Login attempts from ${suspiciousIPs} suspicious IP address(es) including 45.33.32.156. These IPs have been flagged for review.`,time:'30m ago'});
+  if (pendingReqs > 0) alerts.push({type:'warning',icon:'fa-key',title:'Emergency Access Requests Pending',msg:`${pendingReqs} emergency access request(s) are awaiting multi-party verification approval.`,time:'1h ago'});
+  if (blockedUsers > 0) alerts.push({type:'info',icon:'fa-ban',title:'Blocked User Accounts',msg:`${blockedUsers} user account(s) are currently blocked. Review to ensure these blocks are still necessary.`,time:'3d ago'});
+  if (inactiveUsers > 3) alerts.push({type:'warning',icon:'fa-user-clock',title:'High User Inactivity',msg:`${inactiveUsers} users have been inactive for more than ${THRESHOLD_DAYS} days. Consider sending re-engagement notifications.`,time:'1d ago'});
+  alerts.push({type:'success',icon:'fa-shield-alt',title:'Security Systems Operational',msg:'AES-256 encryption, bcrypt hashing, JWT authentication, and rate limiting are all active and functioning normally.',time:'Ongoing'});
+
+  return alerts;
+}
+
+function renderAlerts(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const alerts = buildAlerts();
+  const colors = {
+    danger:{bg:'#FEF2F2',bdr:'#FECACA',icon:'#991B1B',iconBg:'#FEE2E2'},
+    warning:{bg:'#FFFBEB',bdr:'#FDE68A',icon:'#92400E',iconBg:'#FEF3C7'},
+    info:{bg:'#EFF6FF',bdr:'#BFDBFE',icon:'#1E40AF',iconBg:'#DBEAFE'},
+    success:{bg:'#F0FDF4',bdr:'#BBF7D0',icon:'#166534',iconBg:'#DCFCE7'},
+  };
+  el.innerHTML = alerts.map(a => {
+    const c = colors[a.type];
+    return `<div class="alert-item" style="background:${c.bg};border-color:${c.bdr}">
+      <div class="alert-icon" style="background:${c.iconBg};color:${c.icon}"><i class="fas ${a.icon}"></i></div>
+      <div style="flex:1">
+        <div style="font-size:.875rem;font-weight:700;color:${c.icon};margin-bottom:.25rem">${a.title}</div>
+        <div style="font-size:.8rem;color:${c.icon};opacity:.85;line-height:1.55">${a.msg}</div>
+      </div>
+      <div style="font-size:.72rem;color:var(--t3);white-space:nowrap;flex-shrink:0">${a.time}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderRequestsTable() {
+  const filter = document.getElementById('req-filter')?.value || 'all';
+  const tbody = document.getElementById('requests-tbody');
+  if (!tbody) return;
+  const filtered = ACCESS_REQUESTS.filter(r => filter === 'all' || r.status === filter);
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--t3)">No requests found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(r => {
+    const pct = Math.round((r.approvals / r.required) * 100);
+    const bar = `<div style="display:flex;align-items:center;gap:6px">
+      <div class="prog-bar" style="flex:1;max-width:60px"><div class="prog-fill" style="width:${pct}%;background:var(--a)"></div></div>
+      <span style="font-size:.78rem;font-weight:600;color:var(--txt)">${r.approvals}/${r.required}</span>
+    </div>`;
+    return `<tr>
+      <td><div style="font-weight:600;font-size:.875rem;color:var(--txt)">${r.owner}</div><div style="font-size:.72rem;color:var(--t3)">${r.owner_email}</div></td>
+      <td style="font-size:.82rem;color:var(--t2)">${r.requested_by}</td>
+      <td><span style="background:#EEF2FF;color:var(--p);padding:.2rem .6rem;border-radius:20px;font-size:.72rem;font-weight:600;text-transform:uppercase">${r.type}</span></td>
+      <td style="font-size:.82rem;color:var(--t2);max-width:160px">${r.reason}</td>
+      <td>${bar}</td>
+      <td>${reqBadge(r.status)}</td>
+      <td style="font-size:.78rem;color:var(--t3);white-space:nowrap">${formatDate(r.date)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// OVERVIEW DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+function renderOvTable() {
+  var filter = document.getElementById('ov-filter')?.value || 'all';
+  var search = (document.getElementById('ov-search')?.value || '').toLowerCase();
+  var tbody = document.getElementById('ov-users-tbody');
+  if (!tbody) return;
+
+  var filtered = USERS.filter(function(u) {
+    var st = getStatus(u);
+    var risk = getRiskLevel(u.risk_score);
+    var susp = getSuspiciousLabel(u.suspicious_events, u.failed_logins);
+    var matchSearch = !search || u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search);
+    var matchFilter =
+      filter === 'all' ||
+      (filter === 'active'     && st === 'active') ||
+      (filter === 'inactive'   && st === 'inactive') ||
+      (filter === 'blocked'    && st === 'blocked') ||
+      (filter === 'high'       && (risk.label === 'High' || risk.label === 'Critical')) ||
+      (filter === 'suspicious' && susp.label !== 'None');
+    return matchSearch && matchFilter;
+  });
+
+  var countEl = document.getElementById('ov-table-count');
+  if (countEl) countEl.textContent = 'Showing ' + filtered.length + ' of ' + USERS.length + ' users';
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--t3)">No users match your filters</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(function(u) {
+    var st   = getStatus(u);
+    var days = getDaysSince(u.last_active);
+    var risk = getRiskLevel(u.risk_score);
+    var susp = getSuspiciousLabel(u.suspicious_events, u.failed_logins);
+    var daysColor = days > 60 ? 'var(--danger)' : days > 30 ? 'var(--warn)' : 'var(--a)';
+
+    var riskBar = '<div class="risk-bar-wrap"><div class="risk-bar-bg"><div class="risk-bar-fill" style="width:'+u.risk_score+'%;background:'+risk.bar+'"></div></div><span style="font-size:.75rem;font-weight:800;color:'+risk.color+'">'+u.risk_score+'</span></div>';
+    var riskBadge = '<div style="display:flex;flex-direction:column;gap:3px"><span style="display:inline-flex;align-items:center;gap:4px;padding:.2rem .55rem;border-radius:20px;font-size:.7rem;font-weight:700;background:'+risk.bg+';color:'+risk.color+'"><i class="fas fa-circle" style="font-size:.35rem"></i>'+risk.label+'</span>'+riskBar+'</div>';
+    var suspBadge = '<div style="display:flex;flex-direction:column;gap:2px"><span class="susp-pill '+susp.cls+'"><i class="fas '+susp.icon+'" style="font-size:.6rem"></i>'+susp.label+'</span><span style="font-size:.67rem;color:var(--t3)">'+u.failed_logins+' failed · '+u.suspicious_events+' events</span></div>';
+    var stBadge = st==='active' ? '<span class="badge b-active"><i class="fas fa-circle" style="font-size:.4rem"></i>Active</span>' : st==='blocked' ? '<span class="badge" style="background:#FEF2F2;color:#991B1B"><i class="fas fa-ban" style="font-size:.65rem"></i>Blocked</span>' : '<span class="badge b-inactive"><i class="fas fa-circle" style="font-size:.4rem"></i>Inactive</span>';
+    var blockBtn = u.blocked ? '<button class="act-btn act-btn-unblock" onclick="toggleBlock('+u.id+',false,\''+u.name+'\')"><i class="fas fa-unlock"></i>Unblock</button>' : '<button class="act-btn act-btn-block" onclick="toggleBlock('+u.id+',true,\''+u.name+'\')"><i class="fas fa-ban"></i>Block</button>';
+    var actions = '<div style="display:flex;gap:3px;flex-wrap:wrap"><button class="act-btn act-btn-view" onclick="viewUserDetail('+u.id+')"><i class="fas fa-eye"></i>View</button><button class="act-btn act-btn-flag" onclick="openFlagModal('+u.id+',\''+u.name+'\')"><i class="fas fa-flag"></i>Flag</button>'+blockBtn+'</div>';
+    var rowStyle = u.risk_score >= 80 ? 'background:rgba(124,58,237,.04)' : u.risk_score >= 60 ? 'background:rgba(239,68,68,.03)' : '';
+    var avatarBg = u.risk_score>=60 ? 'linear-gradient(135deg,#EF4444,#DC2626)' : u.risk_score>=30 ? 'linear-gradient(135deg,#F59E0B,#D97706)' : 'linear-gradient(135deg,var(--p),var(--s))';
+
+    return '<tr style="'+rowStyle+'">' +
+      '<td><div style="display:flex;align-items:center;gap:9px"><div class="user-av" style="background:'+avatarBg+'">'+initials(u.name)+'</div><div><div style="font-weight:700;font-size:.875rem;color:var(--txt)">'+u.name+'</div><div style="font-size:.68rem;color:var(--t3)">ID #'+u.id+' · '+u.contacts+' contacts</div></div></div></td>' +
+      '<td><div style="font-size:.8rem;color:var(--t2)">'+u.email+'</div>'+(u.emergency_requests>0?'<div style="font-size:.67rem;color:var(--danger)"><i class="fas fa-exclamation-triangle me-1"></i>'+u.emergency_requests+' emergency req.</div>':'')+'</td>' +
+      '<td><div style="font-size:.8rem;font-weight:500;color:var(--txt)">'+formatDate(u.last_active)+'</div><div style="font-size:.68rem;color:var(--t3)">Joined '+formatDate(u.joined)+'</div></td>' +
+      '<td><span style="font-weight:800;color:'+daysColor+';font-size:.9rem">'+days+'d</span></td>' +
+      '<td><div style="font-size:.875rem;font-weight:600;color:var(--txt)">'+u.docs+'</div><div style="font-size:.68rem;color:var(--t3)">doc'+(u.docs!==1?'s':'')+'</div></td>' +
+      '<td>'+suspBadge+'</td>' +
+      '<td>'+riskBadge+'</td>' +
+      '<td>'+stBadge+'</td>' +
+      '<td>'+actions+'</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function renderOverview() {
+  // Stats
+  var active = USERS.filter(function(u){return getStatus(u)==='active';}).length;
+  var inactive = USERS.filter(function(u){return getStatus(u)==='inactive';}).length;
+  var blocked = USERS.filter(function(u){return u.blocked;}).length;
+  var failedToday = AUDIT_LOGS.filter(function(l){return l.status==='failed'&&getDaysSince(l.time)<1;}).length;
+  var pending = ACCESS_REQUESTS.filter(function(r){return r.status==='pending';}).length;
+  var highRisk = USERS.filter(function(u){return u.risk_score>=60;}).length;
+
+  document.getElementById('ov-users').textContent = USERS.length;
+  document.getElementById('ov-active').textContent = active;
+  document.getElementById('ov-inactive').textContent = inactive;
+  document.getElementById('ov-blocked').textContent = blocked;
+  document.getElementById('ov-docs').textContent = USERS.reduce(function(s,u){return s+u.docs;},0);
+  document.getElementById('ov-failed').textContent = failedToday;
+  document.getElementById('ov-pending').textContent = pending;
+  document.getElementById('ov-flags').textContent = highRisk;
+
+  // Render the full user table on the dashboard
+  renderOvTable();
+
+  // Audit preview (6 rows)
+  var auditTbody = document.getElementById('ov-audit-tbody');
+  if (auditTbody) auditTbody.innerHTML = AUDIT_LOGS.slice(0,6).map(function(l){
+    return '<tr><td><div style="font-weight:600;font-size:.8rem;color:var(--txt)">'+l.user+'</div></td><td style="font-size:.78rem;color:var(--t2)">'+l.action.replace(/_/g,' ')+'</td><td style="font-size:.72rem;color:var(--t3);white-space:nowrap">'+formatDate(l.time)+'</td><td>'+actionBadge(l)+'</td></tr>';
+  }).join('');
+
+  // Alerts preview
+  renderAlerts('ov-alerts-body');
+
+  // Request summary
+  var reqSummary = document.getElementById('ov-req-summary');
+  if (reqSummary) {
+    var p = ACCESS_REQUESTS.filter(function(r){return r.status==='pending';}).length;
+    var a = ACCESS_REQUESTS.filter(function(r){return r.status==='approved';}).length;
+    var d = ACCESS_REQUESTS.filter(function(r){return r.status==='denied';}).length;
+    reqSummary.innerHTML =
+      '<div class="req-box" style="background:#FFFBEB;border-color:#FDE68A"><div class="req-num" style="color:#92400E">'+p+'</div><div class="req-lbl" style="color:#92400E"><i class="fas fa-clock"></i>Pending</div></div>' +
+      '<div class="req-box" style="background:#F0FDF4;border-color:#BBF7D0;margin-top:.5rem"><div class="req-num" style="color:#166534">'+a+'</div><div class="req-lbl" style="color:#166534"><i class="fas fa-check-circle"></i>Approved</div></div>' +
+      '<div class="req-box" style="background:#FEF2F2;border-color:#FECACA;margin-top:.5rem"><div class="req-num" style="color:#991B1B">'+d+'</div><div class="req-lbl" style="color:#991B1B"><i class="fas fa-times-circle"></i>Denied</div></div>';
+  }
+}
+
+function renderActivitySection() {
+  THRESHOLD_DAYS = parseInt(document.getElementById('threshold-select')?.value || 30);
+  const active = USERS.filter(u=>getStatus(u)==='active').length;
+  const inactive = USERS.filter(u=>getStatus(u)==='inactive').length;
+  const blocked = USERS.filter(u=>u.blocked).length;
+  const highRisk = USERS.filter(u=>u.risk_score>=60).length;
+  const suspicious = USERS.filter(u=>{
+    const susp = getSuspiciousLabel(u.suspicious_events, u.failed_logins);
+    return susp.label !== 'None';
+  }).length;
+
+  document.getElementById('act-active-count').textContent = active;
+  document.getElementById('act-inactive-count').textContent = inactive;
+  document.getElementById('act-blocked-count').textContent = blocked;
+  document.getElementById('act-highrisk-count').textContent = highRisk;
+  document.getElementById('act-suspicious-count').textContent = suspicious;
+  document.getElementById('act-total-count').textContent = USERS.length;
+  renderActivityTable();
+}
+
+// User detail modal
+function viewUserDetail(userId) {
+  const u = USERS.find(x=>x.id===userId);
+  if (!u) return;
+  const days = getDaysSince(u.last_active);
+  const st = getStatus(u);
+  const risk = getRiskLevel(u.risk_score);
+  const susp = getSuspiciousLabel(u.suspicious_events, u.failed_logins);
+
+  const html = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--bdr)">
+      <div class="user-av" style="width:56px;height:56px;font-size:1.2rem;background:${u.risk_score>=60?'linear-gradient(135deg,#EF4444,#DC2626)':'linear-gradient(135deg,var(--p),var(--s))'}">${initials(u.name)}</div>
+      <div style="flex:1">
+        <div style="font-size:1.1rem;font-weight:800;color:var(--txt);margin-bottom:2px">${u.name}</div>
+        <div style="font-size:.82rem;color:var(--t2)">${u.email}</div>
+      </div>
+      ${statusBadge(st)}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem">
+      <div style="background:var(--bg2);border-radius:10px;padding:.875rem">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:.4rem">Risk Score</div>
+        <div style="font-size:1.5rem;font-weight:900;color:${risk.color}">${u.risk_score}</div>
+        <div style="font-size:.75rem;color:${risk.color};font-weight:600">${risk.label} Risk</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:10px;padding:.875rem">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:.4rem">Suspicious Activity</div>
+        <div style="font-size:1.5rem;font-weight:900;color:${susp.label==='None'?'#166534':'#991B1B'}">${u.suspicious_events}</div>
+        <div style="font-size:.75rem;color:var(--t2);font-weight:600">${susp.label}</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.625rem">
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--bdr)">
+        <span style="font-size:.82rem;color:var(--t3)">Last Activity</span>
+        <span style="font-size:.82rem;font-weight:600;color:var(--txt)">${formatDate(u.last_active)} (${days}d ago)</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--bdr)">
+        <span style="font-size:.82rem;color:var(--t3)">Documents</span>
+        <span style="font-size:.82rem;font-weight:600;color:var(--txt)">${u.docs} document${u.docs!==1?'s':''}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--bdr)">
+        <span style="font-size:.82rem;color:var(--t3)">Trusted Contacts</span>
+        <span style="font-size:.82rem;font-weight:600;color:var(--txt)">${u.contacts} contact${u.contacts!==1?'s':''}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--bdr)">
+        <span style="font-size:.82rem;color:var(--t3)">Failed Login Attempts</span>
+        <span style="font-size:.82rem;font-weight:600;color:${u.failed_logins>5?'var(--danger)':'var(--txt)'}">${u.failed_logins}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--bdr)">
+        <span style="font-size:.82rem;color:var(--t3)">Emergency Requests</span>
+        <span style="font-size:.82rem;font-weight:600;color:${u.emergency_requests>0?'var(--danger)':'var(--txt)'}">${u.emergency_requests}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0">
+        <span style="font-size:.82rem;color:var(--t3)">Account Status</span>
+        <span style="font-size:.82rem;font-weight:600;color:${u.blocked?'var(--danger)':'var(--a)'}">
+          ${u.blocked ? '🚫 Blocked' : '✅ Active'}
+        </span>
+      </div>
+    </div>
+    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--bdr);display:flex;gap:.5rem">
+      <button onclick="openFlagModal(${u.id},'${u.name}')" class="btn btn-sm" style="flex:1;background:#FEF2F2;color:var(--danger);border:1px solid #FECACA"><i class="fas fa-flag me-2"></i>Flag User</button>
+      <button onclick="toggleBlock(${u.id},${!u.blocked},'${u.name}')" class="btn btn-sm" style="flex:1;background:${u.blocked?'#F0FDF4':'#FFFBEB'};color:${u.blocked?'#166534':'#92400E'};border:1px solid ${u.blocked?'#BBF7D0':'#FDE68A'}">
+        <i class="fas fa-${u.blocked?'unlock':'ban'} me-2"></i>${u.blocked?'Unblock':'Block'}
+      </button>
+    </div>
+  `;
+  document.getElementById('user-detail-body').innerHTML = html;
+  document.getElementById('user-detail-modal').style.display = 'flex';
+}
+
+function closeUserModal() {
+  document.getElementById('user-detail-modal').style.display = 'none';
+}
+
+// Flag modal
+function openFlagModal(userId, userName) {
+  document.getElementById('flag-user-id').value = userId;
+  document.getElementById('flag-reason').value = '';
+  document.getElementById('flag-severity').value = 'medium';
+  document.getElementById('flag-modal').style.display = 'flex';
+  closeUserModal();
+}
+
+function closeFlagModal() {
+  document.getElementById('flag-modal').style.display = 'none';
+}
+
+function submitFlag() {
+  // handled by the real API version above
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REAL API HELPERS — calls backend with admin token
+// ═══════════════════════════════════════════════════════════════
+const AdminAPI_DASH = {
+  request: async function(method, endpoint, data) {
+    var token = localStorage.getItem('lv_token');
+    var headers = {'Content-Type':'application/json'};
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    var config = {method: method, headers: headers};
+    if (data) config.body = JSON.stringify(data);
+    try {
+      var res = await fetch('/api/admin' + endpoint, config);
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('lv_token');
+        localStorage.removeItem('lv_user');
+        window.location.href = '/login';
+        return null;
+      }
+      return await res.json();
+    } catch(e) {
+      console.error('API error:', e);
+      return null;
+    }
+  },
+  get: function(ep) { return AdminAPI_DASH.request('GET', ep); },
+  post: function(ep, d) { return AdminAPI_DASH.request('POST', ep, d); },
+  put: function(ep, d) { return AdminAPI_DASH.request('PUT', ep, d); }
+};
+
+// Load real users from API and merge into USERS array
+async function loadRealUsers() {
+  var res = await AdminAPI_DASH.get('/users');
+  if (res && res.success && res.users.length) {
+    // Map real DB users into the USERS format
+    USERS.length = 0; // clear dummy data
+    res.users.forEach(function(u) {
+      var days = u.last_activity_timestamp
+        ? Math.floor((Date.now() - new Date(u.last_activity_timestamp).getTime()) / 86400000)
+        : 999;
+      USERS.push({
+        id: u.id,
+        name: u.full_name,
+        email: u.email,
+        last_active: u.last_activity_timestamp || u.created_at,
+        docs: u.doc_count || 0,
+        blocked: !!u.is_blocked,
+        blocked_reason: u.blocked_reason || '',
+        risk_score: u.risk_score || 0,
+        failed_logins: 0,
+        // derive suspicious_events from risk_score bands
+        suspicious_events: u.risk_score >= 80 ? 7
+                         : u.risk_score >= 60 ? 4
+                         : u.risk_score >= 30 ? 2
+                         : 0,
+        contacts: u.contact_count || 0,
+        emergency_requests: 0,
+        joined: u.created_at
+      });
+    });
+    console.log('[Dashboard] Loaded ' + USERS.length + ' real users from API');
+  }
+}
+
+// Block/unblock — calls real API
+async function toggleBlock(userId, shouldBlock, userName) {
+  var action = shouldBlock ? 'block' : 'unblock';
+  if (!confirm('Are you sure you want to ' + action + ' "' + userName + '"?\n\n' + (shouldBlock ? 'This user will not be able to log in.' : 'This user will regain access to their account.'))) return;
+
+  var reason = '';
+  if (shouldBlock) {
+    reason = prompt('Reason for blocking "' + userName + '" (required):');
+    if (!reason || !reason.trim()) {
+      alert('A reason is required to block a user.');
+      return;
+    }
+  }
+
+  // Show loading state
+  var btn = event && event.target ? event.target : null;
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+
+  var res;
+  if (shouldBlock) {
+    res = await AdminAPI_DASH.put('/users/' + userId + '/block', { reason: reason.trim() });
+  } else {
+    res = await AdminAPI_DASH.put('/users/' + userId + '/unblock', {});
+  }
+
+  if (btn) { btn.disabled = false; }
+
+  if (res && res.success) {
+    // Update local data immediately
+    var u = USERS.find(function(x){ return x.id === userId; });
+    if (u) {
+      u.blocked = shouldBlock;
+      if (shouldBlock) {
+        u.risk_score = Math.min(u.risk_score + 30, 100);
+        u.blocked_reason = reason;
+      } else {
+        u.blocked_reason = '';
+      }
+    }
+    closeUserModal();
+    // Show success toast
+    showDashToast('"' + userName + '" has been ' + (shouldBlock ? 'blocked' : 'unblocked') + ' successfully.', shouldBlock ? 'danger' : 'success');
+    // Reload real data and re-render
+    await loadRealUsers();
+    renderOverview();
+    renderOvTable();
+  } else {
+    alert('Failed to ' + action + ' user: ' + (res ? res.message : 'Network error'));
+  }
+}
+
+// Flag user — calls real API
+async function submitFlag() {
+  var userId = parseInt(document.getElementById('flag-user-id').value);
+  var reason = document.getElementById('flag-reason').value.trim();
+  var severity = document.getElementById('flag-severity').value;
+  if (!reason) {
+    alert('Please provide a reason for flagging this user.');
+    return;
+  }
+  var res = await AdminAPI_DASH.post('/flag', { user_id: userId, reason: reason, severity: severity });
+  if (res && res.success) {
+    var u = USERS.find(function(x){ return x.id === userId; });
+    if (u) {
+      var scoreIncrease = {low:10,medium:20,high:35,critical:50}[severity] || 20;
+      u.risk_score = Math.min(u.risk_score + scoreIncrease, 100);
+      u.suspicious_events += 1;
+    }
+    closeFlagModal();
+    showDashToast('User flagged successfully (' + severity.toUpperCase() + ')', 'warning');
+    renderActivitySection();
+    renderOvTable();
+  } else {
+    alert('Failed to flag user: ' + (res ? res.message : 'Network error'));
+  }
+}
+
+// Simple toast for dashboard
+function showDashToast(msg, type) {
+  var colors = {success:'#22C55E', danger:'#EF4444', warning:'#F59E0B', info:'#4F46E5'};
+  var t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:99999;background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:.875rem 1.25rem;box-shadow:0 8px 32px rgba(15,23,42,.15);display:flex;align-items:center;gap:10px;font-size:.875rem;font-weight:600;color:var(--txt);max-width:360px;animation:slideIn .3s ease';
+  t.innerHTML = '<span style="width:10px;height:10px;border-radius:50%;background:' + (colors[type]||colors.info) + ';flex-shrink:0;display:inline-block"></span>' + msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(function(){ t.remove(); }, 300); }, 3500);
+}
+
+function renderAuditSection_dummy() {
+  // replaced by real API version below — kept as no-op
+}
+
+function renderAlertsSection_dummy() {
+  // replaced by real API version below — kept as no-op
+}
+
+function renderRequestsSection_dummy() {
+  // replaced by real API version below — kept as no-op
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+const SECTIONS = {
+  dashboard: {el:'sec-dashboard',title:'Dashboard',render:function(){renderOverview();}},
+  activity:  {el:'sec-activity', title:'User Activity Status',render:function(){renderActivitySection();}},
+  audit:     {el:'sec-audit',    title:'Audit Logs',render:function(){renderAuditSection();}},
+  alerts:    {el:'sec-alerts',   title:'System Alerts',render:function(){renderAlertsSection();}},
+  requests:  {el:'sec-requests', title:'Access Requests',render:function(){renderRequestsSection();}},
+  settings:  {el:'sec-settings', title:'Settings',render:function(){}},
+};
+
+function showSection(key, btn) {
+  Object.values(SECTIONS).forEach(s => {
+    const el = document.getElementById(s.el);
+    if (el) el.style.display = 'none';
+  });
+  const sec = SECTIONS[key];
+  if (!sec) return;
+  const el = document.getElementById(sec.el);
+  if (el) el.style.display = 'block';
+  document.getElementById('topbar-title').textContent = sec.title;
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.sb-link').forEach(l => {
+      if (l.textContent.trim().toLowerCase().includes(key.toLowerCase())) l.classList.add('active');
+    });
+  }
+  sec.render();
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════════════════════════
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  localStorage.setItem('lv_theme', isDark ? 'dark' : 'light');
+  document.querySelectorAll('#theme-btn i, #settings-theme-btn i').forEach(i => {
+    i.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  });
+}
+
+function doLogout() {
+  if (confirm('Sign out of admin panel?')) {
+    localStorage.removeItem('lv_token');
+    localStorage.removeItem('lv_user');
+    window.location.href = '/login';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async function() {
+  // Populate admin name from unified session
+  try {
+    var stored = localStorage.getItem('lv_user');
+    if (stored) {
+      var u = JSON.parse(stored);
+      var initials = (u.full_name || 'A').charAt(0).toUpperCase();
+      document.querySelectorAll('.admin-name').forEach(function(el) { el.textContent = u.full_name || 'Administrator'; });
+      document.querySelectorAll('.admin-avatar').forEach(function(el) { el.textContent = initials; });
+    }
+  } catch(e) {}
+
+  // Restore theme
+  if (localStorage.getItem('lv_theme') === 'dark') {
+    document.body.classList.add('dark');
+    document.querySelectorAll('#theme-btn i').forEach(i => i.className = 'fas fa-sun');
+  }
+
+  // Theme button
+  document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+
+  // Mobile sidebar
+  document.getElementById('menu-btn').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sb-overlay').classList.toggle('show');
+  });
+  document.getElementById('sb-overlay').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sb-overlay').classList.remove('show');
+  });
+
+  // Threshold change
+  const thresholdSel = document.getElementById('threshold-select');
+  if (thresholdSel) thresholdSel.addEventListener('change', function() {
+    THRESHOLD_DAYS = parseInt(this.value);
+    renderOverview();
+  });
+
+  // Load real users + dashboard stats in parallel
+  await Promise.all([loadRealUsers(), loadDashboardStats()]);
+  renderOverview();
+
+  // Auto-refresh every 60 seconds
+  setInterval(async function() {
+    await Promise.all([loadRealUsers(), loadDashboardStats()]);
+    renderOverview();
+  }, 60000);
+});
+
+// ── Load dashboard stat cards from real API ──────────────────
+async function loadDashboardStats() {
+  var res = await AdminAPI_DASH.get('/dashboard');
+  if (!res || !res.success) return;
+  var s = res.stats;
+
+  // Overview stat cards
+  var el = function(id) { return document.getElementById(id); };
+  if (el('ov-users'))   el('ov-users').textContent   = s.regular_users   || 0;
+  if (el('ov-active'))  el('ov-active').textContent  = s.active_users    || 0;
+  if (el('ov-inactive'))el('ov-inactive').textContent= s.inactive_users  || 0;
+  if (el('ov-blocked')) el('ov-blocked').textContent = s.blocked_users   || 0;
+  if (el('ov-docs'))    el('ov-docs').textContent    = s.total_docs      || 0;
+  if (el('ov-failed'))  el('ov-failed').textContent  = s.failed_logins_24h || 0;
+  if (el('ov-pending')) el('ov-pending').textContent = s.pending_requests || 0;
+  if (el('ov-flags'))   el('ov-flags').textContent   = s.open_flags      || 0;
+
+  // Activity section KPI cards
+  if (el('act-active-count'))   el('act-active-count').textContent   = s.active_users    || 0;
+  if (el('act-inactive-count')) el('act-inactive-count').textContent = s.inactive_users  || 0;
+  if (el('act-blocked-count'))  el('act-blocked-count').textContent  = s.blocked_users   || 0;
+  if (el('act-highrisk-count')) el('act-highrisk-count').textContent = s.open_flags      || 0;
+  if (el('act-total-count'))    el('act-total-count').textContent    = s.regular_users   || 0;
+
+  // Populate overview audit preview from recent_logs
+  if (res.recent_logs && el('ov-audit-tbody')) {
+    el('ov-audit-tbody').innerHTML = res.recent_logs.slice(0,5).map(function(l) {
+      var badge = l.risk_level === 'high' || l.risk_level === 'critical'
+        ? '<span class="badge b-failed">High</span>'
+        : l.risk_level === 'medium'
+        ? '<span class="badge b-warning">Medium</span>'
+        : '<span class="badge b-success">Low</span>';
+      return '<tr>' +
+        '<td style="font-size:.8rem;color:var(--txt)">' + (l.full_name || 'System') + '</td>' +
+        '<td style="font-size:.78rem;color:var(--t2)">' + l.action.replace(/_/g,' ') + '</td>' +
+        '<td style="font-size:.72rem;color:var(--t3)">' + formatDate(l.timestamp) + '</td>' +
+        '<td>' + badge + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // Populate overview alerts from suspicious users
+  if (res.suspicious_users && el('ov-alerts-body')) {
+    if (res.suspicious_users.length === 0) {
+      el('ov-alerts-body').innerHTML = '<div class="alert-item alert-success"><div class="alert-icon" style="background:#F0FDF4"><i class="fas fa-check-circle" style="color:var(--a)"></i></div><div><div style="font-size:.82rem;font-weight:600;color:var(--txt)">All Clear</div><div style="font-size:.75rem;color:var(--t3)">No suspicious users detected</div></div></div>';
+    } else {
+      el('ov-alerts-body').innerHTML = res.suspicious_users.slice(0,3).map(function(u) {
+        var type = u.risk_score >= 80 ? 'danger' : u.risk_score >= 60 ? 'warning' : 'info';
+        var icon = u.risk_score >= 80 ? 'fa-skull-crossbones' : 'fa-exclamation-triangle';
+        return '<div class="alert-item alert-' + type + '"><div class="alert-icon" style="background:' + (type==='danger'?'#FEF2F2':type==='warning'?'#FFFBEB':'#EFF6FF') + '"><i class="fas ' + icon + '" style="color:' + (type==='danger'?'var(--danger)':type==='warning'?'var(--warn)':'var(--info)') + '"></i></div><div style="flex:1"><div style="font-size:.82rem;font-weight:600;color:var(--txt)">' + u.full_name + '</div><div style="font-size:.75rem;color:var(--t3)">Risk score: ' + u.risk_score + ' — ' + (u.is_blocked ? 'Blocked' : u.activity_status) + '</div></div></div>';
+      }).join('');
+    }
+  }
+
+  // Populate overview requests summary
+  if (el('ov-req-summary')) {
+    el('ov-req-summary').innerHTML =
+      '<div style="text-align:center;padding:.5rem 0"><div style="font-size:2rem;font-weight:800;color:var(--warn)">' + (s.pending_requests||0) + '</div><div style="font-size:.75rem;color:var(--t3)">Pending</div></div>' +
+      '<div style="text-align:center;padding:.5rem 0"><div style="font-size:2rem;font-weight:800;color:var(--a)">' + (s.regular_users||0) + '</div><div style="font-size:.75rem;color:var(--t3)">Total Users</div></div>' +
+      '<div style="text-align:center;padding:.5rem 0"><div style="font-size:2rem;font-weight:800;color:var(--danger)">' + (s.open_flags||0) + '</div><div style="font-size:.75rem;color:var(--t3)">Open Flags</div></div>';
+  }
+}
+
+// ── Wire Audit section to real API ───────────────────────────
+async function renderAuditSection() {
+  var res = await AdminAPI_DASH.get('/logs?limit=50');
+  var attRes = await AdminAPI_DASH.get('/login-attempts');
+  if (!res || !res.success) return;
+
+  var logs = res.logs || [];
+  var success = logs.filter(function(l){ return l.risk_level === 'low'; }).length;
+  var failed  = logs.filter(function(l){ return l.risk_level === 'high' || l.risk_level === 'critical'; }).length;
+  var logins  = logs.filter(function(l){ return l.action && l.action.includes('LOGIN'); }).length;
+  var uploads = logs.filter(function(l){ return l.action && l.action.includes('UPLOAD'); }).length;
+
+  var el = function(id) { return document.getElementById(id); };
+  if (el('log-success-count')) el('log-success-count').textContent = success;
+  if (el('log-failed-count'))  el('log-failed-count').textContent  = failed;
+  if (el('log-login-count'))   el('log-login-count').textContent   = logins;
+  if (el('log-upload-count'))  el('log-upload-count').textContent  = uploads;
+
+  var filter = (el('log-filter') && el('log-filter').value) || 'all';
+  var filtered = logs.filter(function(l) {
+    if (filter === 'all')    return true;
+    if (filter === 'login')  return l.action && l.action.includes('LOGIN');
+    if (filter === 'upload') return l.action && l.action.includes('UPLOAD') || l.action && l.action.includes('DOCUMENT');
+    if (filter === 'access') return l.action && (l.action.includes('EMERGENCY') || l.action.includes('ACCESS'));
+    if (filter === 'failed') return l.risk_level === 'high' || l.risk_level === 'critical';
+    return true;
+  });
+
+  var tbody = el('audit-tbody');
+  if (tbody) {
+    tbody.innerHTML = filtered.length ? filtered.map(function(l) {
+      var badge = l.risk_level === 'high' || l.risk_level === 'critical'
+        ? '<span class="badge b-failed">Failed</span>'
+        : l.risk_level === 'medium'
+        ? '<span class="badge b-warning">Warning</span>'
+        : '<span class="badge b-success">Success</span>';
+      return '<tr>' +
+        '<td style="font-size:.82rem;font-weight:600;color:var(--txt)">' + (l.full_name || 'System') + '</td>' +
+        '<td style="font-size:.78rem;color:var(--t3)">' + (l.email || '—') + '</td>' +
+        '<td style="font-size:.8rem;color:var(--txt)">' + l.action.replace(/_/g,' ') + '</td>' +
+        '<td style="font-size:.75rem;color:var(--t3);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (l.details || '—') + '</td>' +
+        '<td style="font-size:.75rem;font-family:monospace;color:var(--t3)">' + (l.ip_address || '—') + '</td>' +
+        '<td style="font-size:.75rem;color:var(--t3);white-space:nowrap">' + formatDate(l.timestamp) + '</td>' +
+        '<td>' + badge + '</td>' +
+        '</tr>';
+    }).join('') : '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--t3)">No logs found</td></tr>';
+  }
+
+  // Wire filter change
+  if (el('log-filter')) {
+    el('log-filter').onchange = function() { renderAuditSection(); };
+  }
+}
+
+// ── Wire Alerts section to real API ─────────────────────────
+async function renderAlertsSection() {
+  var flagsRes = await AdminAPI_DASH.get('/flags');
+  var statsRes = await AdminAPI_DASH.get('/stats');
+
+  var el = function(id) { return document.getElementById(id); };
+  var flags = (flagsRes && flagsRes.success) ? flagsRes.flags : [];
+  var open     = flags.filter(function(f){ return f.status === 'open'; });
+  var resolved = flags.filter(function(f){ return f.status === 'resolved'; });
+  var critical = open.filter(function(f){ return f.severity === 'critical' || f.severity === 'high'; });
+  var warnings = open.filter(function(f){ return f.severity === 'medium'; });
+  var info     = open.filter(function(f){ return f.severity === 'low'; });
+
+  if (el('alrt-critical')) el('alrt-critical').textContent = critical.length;
+  if (el('alrt-warning'))  el('alrt-warning').textContent  = warnings.length;
+  if (el('alrt-info'))     el('alrt-info').textContent     = info.length;
+  if (el('alrt-resolved')) el('alrt-resolved').textContent = resolved.length;
+
+  var active = open.length;
+  if (el('alrt-badge')) {
+    el('alrt-badge').textContent = active + ' active';
+    el('alrt-badge').style.background = active > 0 ? '#FEF2F2' : '#F0FDF4';
+    el('alrt-badge').style.color      = active > 0 ? '#991B1B' : '#166534';
+  }
+
+  var body = el('alerts-full-body');
+  if (body) {
+    if (flags.length === 0) {
+      body.innerHTML = '<div class="alert-item alert-success"><div class="alert-icon" style="background:#F0FDF4"><i class="fas fa-check-circle" style="color:var(--a)"></i></div><div><div style="font-size:.875rem;font-weight:600;color:var(--txt)">No Active Alerts</div><div style="font-size:.78rem;color:var(--t3)">System is operating normally</div></div></div>';
+    } else {
+      body.innerHTML = flags.map(function(f) {
+        var type = f.severity === 'critical' ? 'danger' : f.severity === 'high' ? 'danger' : f.severity === 'medium' ? 'warning' : 'info';
+        var icon = f.severity === 'critical' || f.severity === 'high' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+        var statusTag = f.status === 'resolved'
+          ? '<span class="badge b-success" style="margin-left:auto">Resolved</span>'
+          : '<button onclick="resolveAlertFlag(' + f.id + ')" style="margin-left:auto;padding:.2rem .6rem;border-radius:6px;border:none;background:#F0FDF4;color:#166534;font-size:.72rem;font-weight:600;cursor:pointer">Resolve</button>';
+        return '<div class="alert-item alert-' + type + '" style="margin-bottom:.75rem">' +
+          '<div class="alert-icon" style="background:' + (type==='danger'?'#FEF2F2':type==='warning'?'#FFFBEB':'#EFF6FF') + '">' +
+          '<i class="fas ' + icon + '" style="color:' + (type==='danger'?'var(--danger)':type==='warning'?'var(--warn)':'var(--info)') + '"></i></div>' +
+          '<div style="flex:1"><div style="font-size:.875rem;font-weight:600;color:var(--txt)">' + (f.user_name || 'Unknown User') + '</div>' +
+          '<div style="font-size:.78rem;color:var(--t3);margin-top:.15rem">' + (f.reason || '—') + '</div>' +
+          '<div style="font-size:.72rem;color:var(--t3);margin-top:.15rem">Flagged by: ' + (f.flagged_by_name || 'Admin') + ' · ' + formatDate(f.created_at) + '</div></div>' +
+          statusTag + '</div>';
+      }).join('');
+    }
+  }
+}
+
+async function resolveAlertFlag(id) {
+  var res = await AdminAPI_DASH.put('/flags/' + id + '/resolve', {});
+  if (res && res.success) {
+    showDashToast('Flag resolved successfully', 'success');
+    renderAlertsSection();
+  } else {
+    showDashToast('Failed to resolve flag', 'danger');
+  }
+}
+
+// ── Wire Requests section to real API ───────────────────────
+async function renderRequestsSection() {
+  var res = await AdminAPI_DASH.get('/access-requests');
+  if (!res || !res.success) return;
+
+  var reqs = res.requests || [];
+  var pending  = reqs.filter(function(r){ return r.status === 'pending'; }).length;
+  var approved = reqs.filter(function(r){ return r.status === 'approved'; }).length;
+  var denied   = reqs.filter(function(r){ return r.status === 'denied'; }).length;
+
+  var el = function(id) { return document.getElementById(id); };
+  if (el('req-pending-count'))  el('req-pending-count').textContent  = pending;
+  if (el('req-approved-count')) el('req-approved-count').textContent = approved;
+  if (el('req-denied-count'))   el('req-denied-count').textContent   = denied;
+  if (el('req-total-count'))    el('req-total-count').textContent    = reqs.length;
+  if (el('req-s-pending'))      el('req-s-pending').textContent      = pending;
+  if (el('req-s-approved'))     el('req-s-approved').textContent     = approved;
+  if (el('req-s-denied'))       el('req-s-denied').textContent       = denied;
+
+  var filter = (el('req-filter') && el('req-filter').value) || 'all';
+  var filtered = reqs.filter(function(r) {
+    return filter === 'all' || r.status === filter;
+  });
+
+  var tbody = el('requests-tbody');
+  if (tbody) {
+    tbody.innerHTML = filtered.length ? filtered.map(function(r) {
+      var pct = Math.min(Math.round(((r.approved_count||0) / r.approvals_required) * 100), 100);
+      var approvalBar = '<div style="display:flex;align-items:center;gap:6px">' +
+        '<div style="flex:1;max-width:60px;height:5px;background:var(--bdr);border-radius:3px;overflow:hidden">' +
+        '<div style="height:100%;width:' + pct + '%;background:var(--a);border-radius:3px"></div></div>' +
+        '<span style="font-size:.78rem;font-weight:600;color:var(--txt)">' + (r.approved_count||0) + '/' + r.approvals_required + '</span></div>';
+      var badge = reqBadge(r.status);
+      return '<tr>' +
+        '<td><div style="font-weight:600;font-size:.875rem;color:var(--txt)">' + r.user_name + '</div><div style="font-size:.75rem;color:var(--t3)">' + r.user_email + '</div></td>' +
+        '<td style="font-size:.82rem;color:var(--t2)">' + (r.requested_by || '—') + '</td>' +
+        '<td><span style="background:#EEF2FF;color:var(--p);padding:.2rem .6rem;border-radius:20px;font-size:.72rem;font-weight:700;text-transform:uppercase">' + r.request_type + '</span></td>' +
+        '<td style="font-size:.78rem;color:var(--t3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (r.reason || '—') + '</td>' +
+        '<td>' + approvalBar + '</td>' +
+        '<td>' + badge + '</td>' +
+        '<td style="font-size:.75rem;color:var(--t3);white-space:nowrap">' + formatDate(r.created_at) + '</td>' +
+        '</tr>';
+    }).join('') : '<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--t3)">No access requests found</td></tr>';
+  }
+
+  // Wire filter change
+  if (el('req-filter')) {
+    el('req-filter').onchange = function() { renderRequestsSection(); };
+  }
+}
+</script>
+</body></html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Flagged Activity - Admin | Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<script>(function(){var u=localStorage.getItem('lv_user');if(!localStorage.getItem('lv_token')||!u){window.location.href='/login';return;}try{if(JSON.parse(u).role!=='admin'){window.location.href='/dashboard';}}catch(e){window.location.href='/login';}})()</script>
+<div id="sidebar-mount"></div>
+<div class="admin-main">
+  <div id="topbar-mount"></div>
+  <div class="admin-content">
+    <div class="admin-page-header">
+      <h1><i class="fas fa-flag me-2"></i>Flagged Activities</h1>
+      <p>Suspicious activities flagged by admin — monitor, resolve, or escalate</p>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card-header d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-flag me-2"></i>All Flagged Activities</h6>
+        <button onclick="loadFlags()" class="btn-admin btn-admin-green btn-admin-sm"><i class="fas fa-sync me-1"></i>Refresh</button>
+      </div>
+      <div class="admin-card-body p-0">
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th>User</th><th>Reason</th><th>Severity</th><th>Flagged By</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="flags-tbody"><tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)"><i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/admin.js"></script>
+<script>
+document.getElementById('sidebar-mount').innerHTML = ADMIN_SIDEBAR;
+document.getElementById('topbar-mount').innerHTML = ADMIN_TOPBAR('Flagged Activities');
+initAdminNav();
+
+var sevBadge = function(s) { return ({low:'<span class="badge-low">Low</span>',medium:'<span class="badge-medium">Medium</span>',high:'<span class="badge-high">High</span>',critical:'<span class="badge-critical">Critical</span>'})[s] || '<span class="badge-low">Low</span>'; };
+var statusBadge = function(s) { return ({open:'<span class="badge-pending">Open</span>',resolved:'<span class="badge-approved">Resolved</span>',dismissed:'<span class="badge-inactive">Dismissed</span>'})[s] || '<span class="badge-pending">Open</span>'; };
+
+async function loadFlags() {
+  var res = await AdminAPI.get('/flags');
+  if (!res || !res.success) { AdminToast.error('Failed to load flags'); return; }
+  var flags = res.flags;
+  document.getElementById('flags-tbody').innerHTML = flags.length ? flags.map(function(f) {
+    return '<tr>' +
+      '<td><div style="font-weight:600;font-size:.875rem;color:var(--atext)">' + (f.user_name || 'Unknown') + '</div><div style="font-size:.75rem;color:var(--at3)">' + (f.user_email || '') + '</div></td>' +
+      '<td style="font-size:.875rem;max-width:200px;color:var(--atext)">' + (f.reason || '—') + '</td>' +
+      '<td>' + sevBadge(f.severity) + '</td>' +
+      '<td style="font-size:.8rem;color:var(--atext)">' + (f.flagged_by_name || 'Admin') + '</td>' +
+      '<td>' + statusBadge(f.status) + '</td>' +
+      '<td style="font-size:.78rem;color:var(--at3)">' + adminFormatDate(f.created_at) + '</td>' +
+      '<td>' + (f.status === 'open' ? '<button onclick="resolveFlag(' + f.id + ')" class="btn-admin btn-admin-green btn-admin-sm"><i class="fas fa-check me-1"></i>Resolve</button>' : '<span style="color:var(--at3);font-size:.8rem">—</span>') + '</td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)"><i class="fas fa-check-circle fa-2x mb-2 d-block" style="color:var(--aa)"></i>No flagged activities</td></tr>';
+}
+
+async function resolveFlag(id) {
+  AdminConfirm('Mark this flag as resolved?', async function() {
+    var res = await AdminAPI.put('/flags/' + id + '/resolve', {});
+    if (res && res.success) { AdminToast.success('Flag resolved'); loadFlags(); }
+    else AdminToast.error('Failed to resolve flag');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', loadFlags);
+</script>
+</body>
+</html>

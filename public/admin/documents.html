@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Documents - Admin | Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<script>(function(){var u=localStorage.getItem('lv_user');if(!localStorage.getItem('lv_token')||!u){window.location.href='/login';return;}try{if(JSON.parse(u).role!=='admin'){window.location.href='/dashboard';}}catch(e){window.location.href='/login';}})()</script>
+<div id="sidebar-mount"></div>
+<div class="admin-main">
+  <div id="topbar-mount"></div>
+  <div class="admin-content">
+    <div class="admin-page-header">
+      <h1><i class="fas fa-file-alt me-2"></i>Document Registry</h1>
+      <p>View document metadata only — admin cannot open or read document contents</p>
+    </div>
+
+    <div class="admin-alert admin-alert-info mb-4">
+      <i class="fas fa-shield-alt"></i>
+      <div><strong>Privacy Protection Active:</strong> Admin can only see document metadata (title, owner, size, date). Document contents are AES-256 encrypted and inaccessible to admin.</div>
+    </div>
+
+    <div class="admin-card mb-4">
+      <div class="admin-card-body py-3">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-5">
+            <div class="admin-search">
+              <i class="fas fa-search"></i>
+              <input type="text" id="search-input" class="admin-form-control" placeholder="Search by title or owner..." oninput="filterDocs()">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select id="cat-filter" class="admin-form-control" onchange="filterDocs()">
+              <option value="">All Categories</option>
+              <option value="will">Will</option>
+              <option value="property">Property</option>
+              <option value="financial">Financial</option>
+              <option value="insurance">Insurance</option>
+              <option value="personal">Personal</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button onclick="loadDocs()" class="btn-admin btn-admin-green w-100"><i class="fas fa-sync me-1"></i>Refresh</button>
+          </div>
+          <div class="col-md-2 text-end">
+            <span id="doc-count" style="color:var(--at3);font-size:.875rem"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card-body p-0">
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th>Document Title</th><th>Owner</th><th>Category</th><th>Size</th><th>Encrypted</th><th>Uploaded</th><th>Status</th></tr></thead>
+            <tbody id="docs-tbody"><tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)"><i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/admin.js"></script>
+<script>
+document.getElementById('sidebar-mount').innerHTML = ADMIN_SIDEBAR;
+document.getElementById('topbar-mount').innerHTML = ADMIN_TOPBAR('Document Registry');
+initAdminNav();
+
+var allDocs = [];
+
+function renderDocs(docs) {
+  document.getElementById('doc-count').textContent = docs.length + ' documents';
+  document.getElementById('docs-tbody').innerHTML = docs.length ? docs.map(function(d) {
+    var encBadge = d.is_encrypted ? '<span class="badge-approved"><i class="fas fa-lock me-1"></i>AES-256</span>' : '<span class="badge-denied"><i class="fas fa-unlock me-1"></i>Unencrypted</span>';
+    var statusBadge = d.is_deleted ? '<span class="badge-blocked">Deleted</span>' : '<span class="badge-active">Active</span>';
+    return '<tr>' +
+      '<td><div style="font-weight:600;font-size:.875rem;color:var(--atext)">' + d.title + '</div><div style="font-size:.75rem;color:var(--at3)">' + (d.file_name || '') + '</div></td>' +
+      '<td><div style="font-size:.875rem;color:var(--atext)">' + d.owner_name + '</div><div style="font-size:.75rem;color:var(--at3)">' + d.owner_email + '</div></td>' +
+      '<td><span style="background:#EEF2FF;color:var(--ap);padding:.2rem .6rem;border-radius:20px;font-size:.75rem;font-weight:600">' + (d.category || 'other').toUpperCase() + '</span></td>' +
+      '<td style="font-size:.8rem;color:var(--at3)">' + adminFormatSize(d.file_size) + '</td>' +
+      '<td>' + encBadge + '</td>' +
+      '<td style="font-size:.78rem;color:var(--at3)">' + adminFormatDate(d.created_at) + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)">No documents found</td></tr>';
+}
+
+function filterDocs() {
+  var q = document.getElementById('search-input').value.toLowerCase();
+  var cat = document.getElementById('cat-filter').value;
+  renderDocs(allDocs.filter(function(d) {
+    return (!q || d.title.toLowerCase().includes(q) || d.owner_name.toLowerCase().includes(q) || d.owner_email.toLowerCase().includes(q)) && (!cat || d.category === cat);
+  }));
+}
+
+async function loadDocs() {
+  AdminLoader.show();
+  var res = await AdminAPI.get('/documents');
+  AdminLoader.hide();
+  if (res && res.success) { allDocs = res.documents; filterDocs(); }
+  else AdminToast.error('Failed to load documents');
+}
+
+document.addEventListener('DOMContentLoaded', loadDocs);
+</script>
+</body>
+</html>

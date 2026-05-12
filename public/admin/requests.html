@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Access Requests - Admin | Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<script>(function(){var u=localStorage.getItem('lv_user');if(!localStorage.getItem('lv_token')||!u){window.location.href='/login';return;}try{if(JSON.parse(u).role!=='admin'){window.location.href='/dashboard';}}catch(e){window.location.href='/login';}})()</script>
+<div id="sidebar-mount"></div>
+<div class="admin-main">
+  <div id="topbar-mount"></div>
+  <div class="admin-content">
+    <div class="admin-page-header">
+      <h1><i class="fas fa-key me-2"></i>Access Requests & Approvals</h1>
+      <p>Monitor emergency access requests and trusted contact verification status</p>
+    </div>
+
+    <!-- Multi-party verification info -->
+    <div class="admin-alert admin-alert-info mb-4">
+      <i class="fas fa-users"></i>
+      <div><strong>2-of-3 Verification Rule:</strong> Emergency access requires 2 out of 3 trusted contacts to approve using their unique verification codes. Admin monitors but cannot approve or deny.</div>
+    </div>
+
+    <!-- Access Requests -->
+    <div class="admin-card mb-4">
+      <div class="admin-card-header d-flex align-items-center justify-content-between">
+        <h6 class="mb-0"><i class="fas fa-key me-2"></i>All Access Requests</h6>
+        <button onclick="loadAll()" class="btn-admin btn-admin-green btn-admin-sm"><i class="fas fa-sync me-1"></i>Refresh</button>
+      </div>
+      <div class="admin-card-body p-0">
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th>Vault Owner</th><th>Type</th><th>Reason</th><th>Approvals</th><th>Status</th><th>Expires</th><th>Created</th></tr></thead>
+            <tbody id="requests-tbody"><tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)"><i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trusted Contact Approvals -->
+    <div class="admin-card">
+      <div class="admin-card-header"><h6><i class="fas fa-user-check me-2"></i>Trusted Contact Approval History</h6></div>
+      <div class="admin-card-body p-0">
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th>Contact</th><th>Vault Owner</th><th>Request Type</th><th>Decision</th><th>Comment</th><th>Date</th></tr></thead>
+            <tbody id="approvals-tbody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--at3)"><i class="fas fa-spinner fa-spin me-2"></i>Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/admin.js"></script>
+<script>
+document.getElementById('sidebar-mount').innerHTML = ADMIN_SIDEBAR;
+document.getElementById('topbar-mount').innerHTML = ADMIN_TOPBAR('Access Requests');
+initAdminNav();
+
+var statusBadge = function(s) { return ({pending:'<span class="badge-pending">Pending</span>',approved:'<span class="badge-approved">Approved</span>',denied:'<span class="badge-denied">Denied</span>',expired:'<span class="badge-inactive">Expired</span>'})[s] || '<span class="badge-pending">Pending</span>'; };
+var decisionBadge = function(d) { return d === 'approved' ? '<span class="badge-approved"><i class="fas fa-check me-1"></i>Approved</span>' : '<span class="badge-denied"><i class="fas fa-times me-1"></i>Denied</span>'; };
+
+async function loadRequests() {
+  var res = await AdminAPI.get('/access-requests');
+  if (!res || !res.success) return;
+  var reqs = res.requests;
+  document.getElementById('requests-tbody').innerHTML = reqs.length ? reqs.map(function(r) {
+    var approvalBar = '<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:6px;background:var(--abdr);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--aa);width:' + Math.min((r.approved_count / r.approvals_required) * 100, 100) + '%"></div></div><span style="font-size:.75rem;font-weight:600;color:var(--atext)">' + (r.approved_count || 0) + '/' + r.approvals_required + '</span></div>';
+    return '<tr>' +
+      '<td><div style="font-weight:600;font-size:.875rem;color:var(--atext)">' + r.user_name + '</div><div style="font-size:.75rem;color:var(--at3)">' + r.user_email + '</div></td>' +
+      '<td><span style="background:#EEF2FF;color:var(--ap);padding:.2rem .6rem;border-radius:20px;font-size:.75rem;font-weight:600">' + r.request_type.toUpperCase() + '</span></td>' +
+      '<td style="font-size:.8rem;color:var(--at3);max-width:150px">' + (r.reason || '—') + '</td>' +
+      '<td style="min-width:120px">' + approvalBar + '</td>' +
+      '<td>' + statusBadge(r.status) + '</td>' +
+      '<td style="font-size:.78rem;color:var(--at3)">' + adminFormatDate(r.expires_at) + '</td>' +
+      '<td style="font-size:.78rem;color:var(--at3)">' + adminFormatDate(r.created_at) + '</td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)">No access requests found</td></tr>';
+}
+
+async function loadApprovals() {
+  var res = await AdminAPI.get('/approvals');
+  if (!res || !res.success) return;
+  var approvals = res.approvals;
+  document.getElementById('approvals-tbody').innerHTML = approvals.length ? approvals.map(function(a) {
+    return '<tr>' +
+      '<td><div style="font-weight:600;font-size:.875rem;color:var(--atext)">' + a.contact_name + '</div><div style="font-size:.75rem;color:var(--at3)">' + a.contact_email + '</div></td>' +
+      '<td style="font-size:.875rem;color:var(--atext)">' + a.vault_owner + '</td>' +
+      '<td><span style="background:#EEF2FF;color:var(--ap);padding:.2rem .6rem;border-radius:20px;font-size:.75rem;font-weight:600">' + a.request_type.toUpperCase() + '</span></td>' +
+      '<td>' + decisionBadge(a.decision) + '</td>' +
+      '<td style="font-size:.8rem;color:var(--at3)">' + (a.comment || '—') + '</td>' +
+      '<td style="font-size:.78rem;color:var(--at3)">' + adminFormatDate(a.decided_at) + '</td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--at3)">No approvals recorded</td></tr>';
+}
+
+async function loadAll() {
+  AdminLoader.show();
+  await Promise.all([loadRequests(), loadApprovals()]);
+  AdminLoader.hide();
+}
+
+document.addEventListener('DOMContentLoaded', loadAll);
+</script>
+</body>
+</html>

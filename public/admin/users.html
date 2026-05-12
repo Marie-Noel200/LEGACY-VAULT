@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Users - Admin | Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<script>(function(){var u=localStorage.getItem('lv_user');if(!localStorage.getItem('lv_token')||!u){window.location.href='/login';return;}try{if(JSON.parse(u).role!=='admin'){window.location.href='/dashboard';}}catch(e){window.location.href='/login';}})()</script>
+<div id="sidebar-mount"></div>
+<div class="admin-main">
+  <div id="topbar-mount"></div>
+  <div class="admin-content">
+    <div class="admin-page-header">
+      <h1><i class="fas fa-users me-2"></i>User Management</h1>
+      <p>View all users, monitor activity status, block/unblock accounts</p>
+    </div>
+
+    <div class="admin-card mb-4">
+      <div class="admin-card-body py-3">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-5">
+            <div class="admin-search">
+              <i class="fas fa-search"></i>
+              <input type="text" id="search-input" class="admin-form-control" placeholder="Search by name or email..." oninput="filterUsers()">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select id="status-filter" class="admin-form-control" onchange="filterUsers()">
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button onclick="loadUsers()" class="btn-admin btn-admin-green w-100"><i class="fas fa-sync me-1"></i>Refresh</button>
+          </div>
+          <div class="col-md-2 text-end">
+            <span id="user-count" style="color:var(--at3);font-size:.875rem"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card-body p-0">
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead>
+              <tr><th>User</th><th>Last Active</th><th>Activity Status</th><th>Risk Score</th><th>Documents</th><th>Account Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)"><i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Block Modal -->
+<div id="block-modal" style="display:none" class="admin-modal-overlay">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <h5 class="admin-modal-title"><i class="fas fa-ban me-2" style="color:#e74c3c"></i>Block User</h5>
+      <button onclick="document.getElementById('block-modal').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--at3);font-size:1.2rem"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="block-alert" style="display:none" class="mb-3"></div>
+    <p style="color:var(--at2);font-size:.875rem;margin-bottom:1rem">Blocking this user will prevent them from logging in. Provide a reason:</p>
+    <input type="hidden" id="block-user-id">
+    <div class="mb-3">
+      <label style="font-size:.85rem;font-weight:600;color:var(--at2);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em">Reason for blocking *</label>
+      <textarea id="block-reason" class="admin-form-control" rows="3" placeholder="e.g. Suspicious activity detected..."></textarea>
+    </div>
+    <div class="d-flex gap-2">
+      <button onclick="document.getElementById('block-modal').style.display='none'" class="btn-admin btn-admin-primary flex-fill" style="justify-content:center">Cancel</button>
+      <button onclick="confirmBlock()" class="btn-admin btn-admin-danger flex-fill" style="justify-content:center"><i class="fas fa-ban me-2"></i>Block User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Flag Modal -->
+<div id="flag-modal" style="display:none" class="admin-modal-overlay">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <h5 class="admin-modal-title"><i class="fas fa-flag me-2" style="color:#f39c12"></i>Flag Suspicious Activity</h5>
+      <button onclick="document.getElementById('flag-modal').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--at3);font-size:1.2rem"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="hidden" id="flag-user-id">
+    <div class="mb-3">
+      <label style="font-size:.85rem;font-weight:600;color:var(--at2);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em">Severity</label>
+      <select id="flag-severity" class="admin-form-control">
+        <option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label style="font-size:.85rem;font-weight:600;color:var(--at2);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em">Reason *</label>
+      <textarea id="flag-reason" class="admin-form-control" rows="3" placeholder="Describe the suspicious activity..."></textarea>
+    </div>
+    <div class="d-flex gap-2">
+      <button onclick="document.getElementById('flag-modal').style.display='none'" class="btn-admin btn-admin-primary flex-fill" style="justify-content:center">Cancel</button>
+      <button onclick="confirmFlag()" class="btn-admin btn-admin-danger flex-fill" style="justify-content:center"><i class="fas fa-flag me-2"></i>Flag Activity</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/admin.js"></script>
+<script>
+document.getElementById('sidebar-mount').innerHTML = ADMIN_SIDEBAR;
+document.getElementById('topbar-mount').innerHTML = ADMIN_TOPBAR('User Management');
+initAdminNav();
+
+var allUsers = [];
+
+function getRiskColor(score) {
+  if (score < 30) return '#22C55E';
+  if (score < 60) return '#f39c12';
+  return '#e74c3c';
+}
+
+function renderUsers(users) {
+  document.getElementById('user-count').textContent = users.length + ' users';
+  var tbody = document.getElementById('users-tbody');
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--at3)">No users found</td></tr>'; return; }
+  tbody.innerHTML = users.map(function(u) {
+    var actStatus = u.activity_status === 'active' ? '<span class="badge-active"><i class="fas fa-circle me-1" style="font-size:.5rem"></i>Active</span>' : '<span class="badge-inactive"><i class="fas fa-circle me-1" style="font-size:.5rem"></i>Inactive</span>';
+    var accStatus = u.is_blocked ? '<span class="badge-blocked"><i class="fas fa-ban me-1"></i>Blocked</span>' : '<span class="badge-active"><i class="fas fa-check me-1"></i>Active</span>';
+    var riskColor = getRiskColor(u.risk_score || 0);
+    return '<tr>' +
+      '<td><div style="font-weight:600;font-size:.875rem;color:var(--atext)">' + u.full_name + '</div><div style="font-size:.75rem;color:var(--at3)">' + u.email + '</div></td>' +
+      '<td style="font-size:.8rem;color:var(--at3)">' + adminFormatDate(u.last_activity_timestamp) + '</td>' +
+      '<td>' + actStatus + '</td>' +
+      '<td><span style="font-weight:700;color:' + riskColor + ';font-family:Inter,sans-serif">' + (u.risk_score || 0) + '</span><span style="color:var(--at3);font-size:.75rem">/100</span></td>' +
+      '<td style="font-size:.875rem;color:var(--atext)">' + (u.doc_count || 0) + ' docs</td>' +
+      '<td>' + accStatus + (u.blocked_reason ? '<div style="font-size:.72rem;color:var(--at3);margin-top:.2rem">' + u.blocked_reason + '</div>' : '') + '</td>' +
+      '<td><div class="d-flex gap-1 flex-wrap">' +
+        (u.is_blocked
+          ? '<button onclick="unblockUser(' + u.id + ')" class="btn-admin btn-admin-green btn-admin-sm"><i class="fas fa-unlock me-1"></i>Unblock</button>'
+          : '<button onclick="openBlockModal(' + u.id + ')" class="btn-admin btn-admin-danger btn-admin-sm"><i class="fas fa-ban me-1"></i>Block</button>') +
+        '<button onclick="openFlagModal(' + u.id + ')" class="btn-admin btn-admin-primary btn-admin-sm"><i class="fas fa-flag me-1"></i>Flag</button>' +
+      '</div></td></tr>';
+  }).join('');
+}
+
+function filterUsers() {
+  var q = document.getElementById('search-input').value.toLowerCase();
+  var status = document.getElementById('status-filter').value;
+  renderUsers(allUsers.filter(function(u) {
+    var matchQ = !q || u.full_name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+    var matchS = !status || (status === 'blocked' ? u.is_blocked : status === 'active' ? u.activity_status === 'active' && !u.is_blocked : u.activity_status === 'inactive' && !u.is_blocked);
+    return matchQ && matchS;
+  }));
+}
+
+async function loadUsers() {
+  AdminLoader.show();
+  var res = await AdminAPI.get('/users');
+  AdminLoader.hide();
+  if (res && res.success) { allUsers = res.users; filterUsers(); }
+  else AdminToast.error('Failed to load users');
+}
+
+function openBlockModal(id) {
+  document.getElementById('block-user-id').value = id;
+  document.getElementById('block-reason').value = '';
+  document.getElementById('block-alert').style.display = 'none';
+  document.getElementById('block-modal').style.display = 'flex';
+}
+
+async function confirmBlock() {
+  var id = document.getElementById('block-user-id').value;
+  var reason = document.getElementById('block-reason').value.trim();
+  if (!reason) { document.getElementById('block-alert').style.display='block'; document.getElementById('block-alert').innerHTML='<div class="admin-alert admin-alert-danger"><i class="fas fa-exclamation-circle"></i>Please provide a reason</div>'; return; }
+  var res = await AdminAPI.put('/users/' + id + '/block', { reason });
+  if (res && res.success) { AdminToast.success('User blocked'); document.getElementById('block-modal').style.display='none'; loadUsers(); }
+  else AdminToast.error(res ? res.message : 'Failed to block user');
+}
+
+async function unblockUser(id) {
+  AdminConfirm('Unblock this user? They will regain access to their account.', async function() {
+    var res = await AdminAPI.put('/users/' + id + '/unblock', {});
+    if (res && res.success) { AdminToast.success('User unblocked'); loadUsers(); }
+    else AdminToast.error('Failed to unblock user');
+  });
+}
+
+function openFlagModal(id) {
+  document.getElementById('flag-user-id').value = id;
+  document.getElementById('flag-reason').value = '';
+  document.getElementById('flag-modal').style.display = 'flex';
+}
+
+async function confirmFlag() {
+  var id = document.getElementById('flag-user-id').value;
+  var reason = document.getElementById('flag-reason').value.trim();
+  var severity = document.getElementById('flag-severity').value;
+  if (!reason) { AdminToast.warning('Please provide a reason'); return; }
+  var res = await AdminAPI.post('/flag', { user_id: parseInt(id), reason, severity });
+  if (res && res.success) { AdminToast.success('Activity flagged'); document.getElementById('flag-modal').style.display='none'; loadUsers(); }
+  else AdminToast.error('Failed to flag activity');
+}
+
+document.addEventListener('DOMContentLoaded', loadUsers);
+</script>
+</body>
+</html>

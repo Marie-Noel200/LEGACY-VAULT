@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="en"><head>
+<link rel="icon" type="image/svg+xml" href="/img/icon.svg"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Dashboard — Legacy Vault</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<script>(function(){var u=localStorage.getItem('lv_user');if(!localStorage.getItem('lv_token')||!u){window.location.href='/login';return;}try{if(JSON.parse(u).role!=='admin'){window.location.href='/dashboard';}}catch(e){window.location.href='/login';}})()</script>
+<div id="sidebar-mount"></div>
+<div class="admin-main">
+  <div id="topbar-mount"></div>
+  <script>
+    document.getElementById('sidebar-mount').innerHTML = ADMIN_SIDEBAR;
+    document.getElementById('topbar-mount').innerHTML = ADMIN_TOPBAR('Dashboard');
+    initAdminNav();
+  </script>
+  <script>window.location.href='/admin/dashboard';</script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/admin.js"></script>
+</body></html>
+<body>
+<script>(function(){var u=localStorage.getItem('lv_user');if(!localStorage.getItem('lv_token')||!u){window.location.href='/login';return;}try{if(JSON.parse(u).role!=='admin'){window.location.href='/dashboard';}}catch(e){window.location.href='/login';}})()</script>
+
+<!-- SIDEBAR -->
+<div id="admin-sidebar" class="admin-sidebar">
+  <div class="admin-sidebar-logo">
+    <div class="admin-logo-icon"><i class="fas fa-shield-alt"></i></div>
+    <div><div class="admin-brand">Legacy<span>Vault</span></div><div class="admin-role-badge">ADMIN PANEL</div></div>
+  </div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Overview</div>
+    <a href="/admin" class="admin-nav-link"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+    <a href="/admin/users" class="admin-nav-link"><i class="fas fa-users"></i>All Users</a>
+    <a href="/admin/documents" class="admin-nav-link"><i class="fas fa-file-alt"></i>Documents</a>
+    <div class="admin-nav-section">Security</div>
+    <a href="/admin/logs" class="admin-nav-link"><i class="fas fa-clipboard-list"></i>Audit Logs</a>
+    <a href="/admin/flags" class="admin-nav-link"><i class="fas fa-flag"></i>Flagged Activity</a>
+    <a href="/admin/access-requests" class="admin-nav-link"><i class="fas fa-key"></i>Access Requests</a>
+    <div class="admin-nav-section">Account</div>
+    <a href="#" class="admin-nav-link admin-logout-btn"><i class="fas fa-sign-out-alt"></i>Logout</a>
+  </nav>
+  <div class="admin-sidebar-footer">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="admin-avatar admin-avatar-display" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--admin-accent),var(--admin-mint));display:flex;align-items:center;justify-content:center;color:var(--admin-dark);font-weight:700;font-size:.875rem">A</div>
+      <div><div class="admin-name-display" style="font-size:.875rem;font-weight:600;color:var(--atext)">Admin</div><div style="font-size:.72rem;color:rgba(79,70,229,.5)">System Administrator</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="admin-topbar">
+  <div class="d-flex align-items-center gap-3">
+    <button id="admin-sidebar-toggle" class="btn btn-sm d-lg-none" style="background:var(--abg2);border:1px solid var(--abdr)"><i class="fas fa-bars"></i></button>
+    <div class="admin-topbar-title">Dashboard</div>
+  </div>
+  <div class="admin-topbar-right">
+    <div style="font-size:.8rem;color:var(--at3)"><i class="fas fa-clock me-1"></i><span id="current-time"></span></div>
+    <div class="admin-avatar admin-avatar-display">A</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="admin-main">
+  <div class="admin-page-header">
+    <h1><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h1>
+    <p>System overview — Legacy Vault Security Control Center</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-4 mb-4">
+    <div class="col-6 col-lg-3"><div class="admin-stat"><div class="admin-stat-icon"><i class="fas fa-users"></i></div><div class="admin-stat-value" id="s-users">—</div><div class="admin-stat-label">Total Users</div></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-stat" style="border-top-color:#f39c12"><div class="admin-stat-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)"><i class="fas fa-user-slash"></i></div><div class="admin-stat-value" id="s-inactive">—</div><div class="admin-stat-label">Inactive Users</div></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-stat" style="border-top-color:#e74c3c"><div class="admin-stat-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)"><i class="fas fa-ban"></i></div><div class="admin-stat-value" id="s-blocked">—</div><div class="admin-stat-label">Blocked Users</div></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-stat" style="border-top-color:#9b59b6"><div class="admin-stat-icon" style="background:linear-gradient(135deg,#9b59b6,#8e44ad)"><i class="fas fa-flag"></i></div><div class="admin-stat-value" id="s-flags">—</div><div class="admin-stat-label">Open Flags</div></div></div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-6 col-lg-3"><div class="admin-stat" style="border-top-color:#3498db"><div class="admin-stat-icon" style="background:linear-gradient(135deg,#3498db,#2980b9)"><i class="fas fa-file-alt"></i></div><div class="admin-stat-value" id="s-docs">—</div><div class="admin-stat-label">Total Documents</div></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-stat" style="border-top-color:#e74c3c"><div class="admin-stat-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)"><i class="fas fa-exclamation-triangle"></i></div><div class="admin-stat-value" id="s-highrisk">—</div><div class="admin-stat-label">High Risk Events</div></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-stat" style="border-top-color:#f39c12"><div class="admin-stat-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)"><i class="fas fa-key"></i></div><div class="admin-stat-value" id="s-requests">—</div><div class="admin-stat-label">Pending Requests</div></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-stat"><div class="admin-stat-icon"><i class="fas fa-list"></i></div><div class="admin-stat-value" id="s-logs">—</div><div class="admin-stat-label">Total Log Events</div></div></div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- Suspicious Users -->
+    <div class="col-lg-6">
+      <div class="admin-card">
+        <div class="admin-card-header"><span><i class="fas fa-exclamation-triangle"></i>Suspicious Users</span><a href="/admin/users?status=blocked" style="color:var(--aa);font-size:.8rem;text-decoration:none">View All</a></div>
+        <div class="admin-card-body p-0">
+          <div style="overflow-x:auto">
+            <table class="admin-table w-100">
+              <thead><tr><th>User</th><th>Risk Score</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="suspicious-tbody"><tr><td colspan="4" class="text-center py-4" style="color:var(--at3)"><div class="spinner-vault" style="width:30px;height:30px;margin:0 auto;border-width:2px"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Recent Activity -->
+    <div class="col-lg-6">
+      <div class="admin-card">
+        <div class="admin-card-header"><span><i class="fas fa-clock"></i>Recent System Activity</span><a href="/admin/logs" style="color:var(--aa);font-size:.8rem;text-decoration:none">View All</a></div>
+        <div class="admin-card-body" style="max-height:320px;overflow-y:auto">
+          <div id="recent-activity"><div class="admin-spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="admin-card">
+    <div class="admin-card-header"><i class="fas fa-bolt"></i>Quick Actions</div>
+    <div class="admin-card-body">
+      <div class="row g-3">
+        <div class="col-md-3"><a href="/admin/users" class="d-block text-center p-3 text-decoration-none" style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;transition:all .3s"><i class="fas fa-users fa-2x mb-2 d-block" style="color:var(--aa)"></i><div style="font-size:.85rem;font-weight:600;color:var(--atext)">Manage Users</div></a></div>
+        <div class="col-md-3"><a href="/admin/logs" class="d-block text-center p-3 text-decoration-none" style="background:rgba(79,70,229,.06);border:1px solid #EEF2FF;border-radius:10px;transition:all .3s"><i class="fas fa-clipboard-list fa-2x mb-2 d-block" style="color:var(--ap)"></i><div style="font-size:.85rem;font-weight:600;color:var(--atext)">Audit Logs</div></a></div>
+        <div class="col-md-3"><a href="/admin/flags" class="d-block text-center p-3 text-decoration-none" style="background:#FEF2F2;border:1px solid #FEF2F2;border-radius:10px;transition:all .3s"><i class="fas fa-flag fa-2x mb-2 d-block" style="color:var(--adanger)"></i><div style="font-size:.85rem;font-weight:600;color:var(--atext)">Flagged Activity</div></a></div>
+        <div class="col-md-3"><button onclick="runInactivityCheck()" class="d-block text-center p-3 w-100" style="background:rgba(243,156,18,.06);border:1px solid rgba(243,156,18,.15);border-radius:10px;cursor:pointer;transition:all .3s"><i class="fas fa-user-clock fa-2x mb-2 d-block" style="color:#f39c12"></i><div style="font-size:.85rem;font-weight:600;color:var(--atext)">Check Inactivity</div></button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+  initAdminNav();
+
+  // Helper functions
+  function statusBadge(s) {
+    var map = {active:'<span class="badge-active">Active</span>',inactive:'<span class="badge-inactive">Inactive</span>',blocked:'<span class="badge-blocked">Blocked</span>'};
+    return map[s] || '<span class="badge-inactive">' + s + '</span>';
+  }
+  function timeAgo(d) {
+    if (!d) return 'Never';
+    var diff = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    return Math.floor(diff/86400) + 'd ago';
+  }
+
+  // Clock
+  setInterval(() => {
+    document.getElementById('current-time').textContent = new Date().toLocaleTimeString();
+  }, 1000);
+
+  var res = await AdminAPI.get('/dashboard');
+  if (!res || !res.success) return;
+
+  var s = res.stats;
+  document.getElementById('s-users').textContent = s.regular_users || 0;
+  document.getElementById('s-inactive').textContent = s.inactive_users || 0;
+  document.getElementById('s-blocked').textContent = s.blocked_users || 0;
+  document.getElementById('s-flags').textContent = s.open_flags || 0;
+  document.getElementById('s-docs').textContent = s.total_docs || 0;
+  document.getElementById('s-highrisk').textContent = s.high_risk || 0;
+  document.getElementById('s-requests').textContent = s.pending_requests || 0;
+  document.getElementById('s-logs').textContent = s.total_logs || 0;
+
+  // Suspicious users
+  var sus = res.suspicious_users || [];
+  document.getElementById('suspicious-tbody').innerHTML = sus.length ? sus.map(function(u) {
+    var riskColor = u.risk_score > 60 ? '#EF4444' : u.risk_score > 30 ? '#f39c12' : '#22C55E';
+    return '<tr><td><div style="font-weight:600;font-size:.875rem;color:var(--atext)">' + u.full_name + '</div><div style="font-size:.75rem;color:var(--at3)">' + u.email + '</div></td>' +
+      '<td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;max-width:80px;height:6px;background:var(--abdr);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + u.risk_score + '%;background:' + riskColor + ';border-radius:3px"></div></div><span style="font-weight:700;color:' + riskColor + '">' + u.risk_score + '</span></div></td>' +
+      '<td>' + statusBadge(u.is_blocked ? 'blocked' : u.activity_status) + '</td>' +
+      '<td><a href="/admin/users" class="btn-admin btn-admin-sm btn-admin-primary">View</a></td></tr>';
+  }).join('') : '<tr><td colspan="4" class="text-center py-3" style="color:var(--at3)"><i class="fas fa-check-circle me-2" style="color:var(--aa)"></i>No suspicious users</td></tr>';
+
+  // Recent activity
+  var logs = res.recent_logs || [];
+  document.getElementById('recent-activity').innerHTML = logs.length ? logs.map(function(l) {
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:.75rem 0;border-bottom:1px solid var(--abdr)">' +
+      '<div style="width:8px;height:8px;border-radius:50%;background:' + (l.risk_level === 'high' || l.risk_level === 'critical' ? '#EF4444' : l.risk_level === 'medium' ? '#f39c12' : '#22C55E') + ';margin-top:6px;flex-shrink:0"></div>' +
+      '<div style="flex:1;min-width:0"><div style="font-size:.85rem;font-weight:600;color:var(--atext)">' + (l.full_name || 'System') + '</div>' +
+      '<div style="font-size:.78rem;color:var(--at3)">' + l.action.replace(/_/g,' ') + '</div></div>' +
+      '<div style="font-size:.72rem;color:var(--at3);flex-shrink:0">' + timeAgo(l.timestamp) + '</div></div>';
+  }).join('') : '<div class="text-center py-3" style="color:var(--at3)">No recent activity</div>';
+});
+
+async function runInactivityCheck() {
+  var res = await AdminAPI.post('/check-inactivity', { threshold_days: 30 });
+  if (res && res.success) AdminToast.success(res.message);
+  else AdminToast.error('Check failed');
+}
+</script>
+</body>
+</html>
