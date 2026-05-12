@@ -12,14 +12,19 @@ const { loginLimiter } = require('../middleware/rateLimiter');
 router.post('/register', [
     body('full_name').trim().isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters'),
     body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
-    body('phone').optional({ checkFalsy: true }).isMobilePhone().withMessage('Valid phone required'),
+    body('phone').optional({ checkFalsy: true }).trim(),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)
-        .withMessage('Password must contain uppercase, lowercase, number and special character'),
+        .withMessage('Password must contain uppercase, lowercase, number and special character (@$!%*?&)'),
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ success: false, errors: errors.array() });
+        // Return the first error message so the frontend can display it
+        return res.status(400).json({
+            success: false,
+            message: errors.array()[0].msg,
+            errors: errors.array()
+        });
     }
 
     const { full_name, email, phone, password } = req.body;
