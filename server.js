@@ -26,11 +26,11 @@ app.use(helmet({
     }
 }));
 
+// Trim any accidental whitespace/newlines from BASE_URL before using it as a CORS origin
+const BASE_URL_CLEAN = (process.env.BASE_URL || '').trim();
 app.use(cors({
-    // Since frontend is served by the same Express server, allow same origin.
-    // In production on Railway, BASE_URL is the app's own URL.
     origin: process.env.NODE_ENV === 'production'
-        ? (process.env.BASE_URL || true)
+        ? (BASE_URL_CLEAN || true)
         : '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
