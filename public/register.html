@@ -170,7 +170,18 @@ body{margin:0;padding:0;min-height:100vh;display:flex;background:var(--bg)}
 <script src="/js/app.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
-  LV.Auth.requireGuest();initPasswordToggles();
+  LV.Auth.requireGuest();
+  // Password toggles
+  document.querySelectorAll('.password-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      var input=this.closest('.input-group').querySelector('input');
+      var icon=this.querySelector('i');
+      if(!input) return;
+      input.type = input.type==='password' ? 'text' : 'password';
+      icon.className = input.type==='password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+  });
   document.getElementById('reg-form').addEventListener('submit',async function(e){
     e.preventDefault();
     var p=document.getElementById('password').value;var c=document.getElementById('confirm_password').value;var ab=document.getElementById('alert-box');
